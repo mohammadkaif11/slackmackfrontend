@@ -4,7 +4,7 @@ import Navbar from './Component/Navbar';
 function App() {
   return (
     <div className="App">
-     <Navbar/>
+      Hello kaif
     </div>
   );
 }
