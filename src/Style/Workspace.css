@@ -1,0 +1,71 @@
+
+*{
+    margin: 0;
+    padding: 0;
+}
+.background{
+    background-color: #f4ede480;
+}
+.homePageHeader{
+display: flex;
+justify-content: center;
+padding: 30px;
+}
+.homePageHeader h1{
+margin: 5px;
+}
+.homePageContainer{
+display: flex;
+justify-content: center;
+}
+.homePageContainer .emailbox h3{
+background-color: white;
+border-radius: 15px;
+padding: 5px;
+font-size: 20px;
+}
+.homePageContainer .emailbox{
+margin: 20px;
+}
+.homePageContainer .content1{
+width: 40%;
+margin-right: 30px;
+padding: 10px;
+}
+.homePageContainer .content1 h1{
+  font-size: 40px; 
+  margin: 20px;
+}
+
+.homePageContainer .content1 p{
+  font-size: 20px; 
+  margin: 10px;
+}
+.homePageContainer .content1 .inner_button button{
+width: 100%;
+font-size: 25px;
+background-color: #611f69;
+color: white;
+border: 2px solid #611f69;
+border-radius: 3px;
+margin: 10px;
+}
+.workspaceCards{
+display: flex;
+justify-content: center;
+align-items: center;
+}
+.workspaceCard { 
+ border: 2px solid rgb(155, 148, 148);
+ border-radius: 10px;
+ width: 550px;
+ height: 80px;
+ padding: 7px;
+}
+.workspaceCard h1{ 
+font-size: 15px;
+}
+.workspaceCard p { 
+font-size: 20px;
+padding: 5px;
+}

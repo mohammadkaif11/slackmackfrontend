@@ -1,0 +1,100 @@
+*{
+    padding: 0;
+    margin: 0;
+ }
+ .header{
+    background-color: #541554;
+ }
+.liststylenone ul li {
+  list-style: none;
+}
+
+.nav ul {
+  display: flex;
+}
+
+Nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 25px;
+}
+.nav1 {
+  margin-right: 40px;
+  height: 100px;
+}
+
+.nav1 ul li {
+  margin-left: 50px;
+  font-size: 20px;
+  color: white;
+}
+.nav2 {
+  height: 100px;
+}
+.nav2 ul li {
+  margin-left: 40px;
+  font-size: 20px;
+  color: white;
+
+}
+.nav2 ul li button {
+  font-size: 18px;
+  padding: 5px;
+}
+.button1{
+  border: 2px white solid;
+  color: white;
+  background-color: #541554;
+  font-size: 18px;
+  padding: 5px;
+}
+.button2{
+  border: 2px white solid;
+  background-color: white;
+  color: #541554;
+  font-size: 18px;
+  padding: 5px;
+}
+.homeContainer {
+ display: flex;
+ align-items: center;
+ justify-content: center;
+ width: 100%;
+
+}
+.homeContainer .content1{
+ width: 35%;
+ color: white;
+}
+.homeContainer .content1 h1{
+    font-size: 55px; 
+    margin: 10px;
+}
+.homeContainer .content1 p{
+    font-size: 20px; 
+    margin: 10px;
+
+}
+.homeContainer  .inner_button{
+  padding: 10px;
+}
+.googlebutton{
+  border: #4285f4 2px solid;
+  background-color: #4285f4;
+  color: white;
+  font-size: 18px;
+  padding: 5px;
+}
+.homeContainer .content1 h2{
+    font-size: 25px; 
+    margin: 10px;
+}
+.homeContainer .content2{
+ width: 35%;
+ margin-bottom: 50px;
+ margin-left: 35px;
+}
+.homeContainer .content2 video{
+ width: 100%;
+}

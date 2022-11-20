@@ -1,0 +1,98 @@
+
+*{
+    margin: 0 ;
+    padding: 0 ;
+    box-sizing: border-box;
+}
+.clientContainer{
+       height:100vh;
+       display: flex;
+}
+.sidbar{
+   width: 20%;
+   height: 100%;
+   background-color: #19171d;
+   border: 1px solid rgb(48, 48, 48);
+
+
+}
+.sidbar .channelName{
+   color: white;
+   border: 1px solid rgb(48, 48, 48);
+   padding: 20px;
+   font-size: 25px;
+}
+.channelList ul li button{
+margin: 10px;
+padding: 10px;
+font-size: 20px;
+color:#19171d ;
+background-color: #19171d;
+color: rgb(209 210 211 / 70%);
+border: none;
+}
+.chats{
+   height: 100vh;
+   width: 100%;
+   background-color: rgb(26 29 33);
+   border: 1px solid rgb(48, 48, 48);
+
+}
+.chats .channelName{
+   padding: 20px;
+   font-size: 30px;
+   color: white;
+   border: 1px solid rgb(48, 48, 48);
+
+}
+.chatForm{
+   border: 1px solid rgb(48, 48, 48);
+   position: absolute;
+   bottom: 0;
+   margin: 30px;
+   border-radius: 10px;
+   width: 80%;
+}
+.chatForm textarea{
+   width: 100%;
+   height: 40px;
+   background-color: rgb(26 29 33);
+   outline: none;
+   border: none;
+   font-size: 20px;
+   color: white;
+   overflow:auto;
+   resize:none;
+   padding: 15px;
+
+}
+.upperbutton{
+   margin-left: 3px;
+   margin-top: 5px;
+}
+.lowerbutton{
+   display: flex;
+   justify-content: space-between;
+}
+.bodernone{
+   border: none;
+}
+.right  .btn-plane {
+   width: 50px;
+   border-radius: 5px;
+   border: none;
+   background: none;
+   cursor: pointer;
+   margin: 5px;
+   padding: 3px;
+}
+
+i {
+   font-size: 1.3rem;
+   color: white;
+   outline: none;
+   margin-right: 5px;
+}
+.scroll::-webkit-scrollbar {
+  display: none;
+}

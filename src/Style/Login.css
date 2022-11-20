@@ -1,0 +1,56 @@
+
+.Loginheader{
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+   }
+   .Loginheader h1{
+       margin: 5px;
+   }
+   .LoginContainer{
+     display: flex;
+    justify-content: center;
+   }
+   .LoginContainer h1{
+       text-align: center;
+   }
+   .LoginContainer p{
+       text-align: center;
+       font-size: 15px;
+   }
+   .googlebutton{
+       border: #4285f4 2px solid;
+       color: white;
+       font-size: 15px;
+       padding: 10px;
+       width: 100%;
+       margin-top: 5px;
+   }
+   .applebutton{
+       border:black 2px solid;
+       color: black;
+       font-size: 15px;
+       padding: 10px;
+       width: 100%;
+       margin-top: 5px;
+   }
+   .LoginContainer h3{
+       text-align: center;
+   }
+   .LoginContainer input{
+       box-sizing: border-box;
+   width: 100%;
+   margin: 5px;
+   font-size: 20px;
+   padding: 10px;
+   
+   }
+   .singupbutton{
+       width: 100%;
+       margin: 5px;
+       padding: 10px;
+       border: 2px  #541554 solid;
+       background-color:  #541554;
+       color:white;
+       font-size: 20px;
+   }
