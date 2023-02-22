@@ -87,7 +87,7 @@ border: none;
    padding: 3px;
 }
 
-i {
+i{
    font-size: 1.3rem;
    color: white;
    outline: none;
@@ -95,4 +95,23 @@ i {
 }
 .scroll::-webkit-scrollbar {
   display: none;
+}
+.chatCard{
+   color: white;
+   margin: 5px;
+   border: gray 2px solid;
+}
+
+.chatCard .heder{
+   display: flex;
+   justify-content: space-between;
+   margin: 2px;
+   color: #a39e9e;
+   font-size: 15px;
+   font-weight: bold;
+}
+.chatCard .chatContent
+{
+ color: white;
+ font-size: 22px;
 }

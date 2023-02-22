@@ -4,12 +4,14 @@ import Modal from "./Modal";
 import "../Style/Chart.css";
 import UserContext from "../Context/UserContext";
 import ChartContext from "../Context/ChartContext";
+import SocketContext from "../Context/socket";
 
 function AdminChart() {
   const workspaceParameter = useParams();
 
   const user = useContext(UserContext);
   const chart = useContext(ChartContext);
+  const socket = React.useContext(SocketContext);
 
   const { profile, getPorfile } = user;
   const { getAllUser, currentuser, admin, users } = chart;
@@ -20,20 +22,29 @@ function AdminChart() {
   const [lastPong, setLastPong] = useState(null);
 
   useEffect(() => {
-    const workspaceId = workspaceParameter;
-    const splitId = workspaceId.id.split("-");
+    const workspaceid = workspaceParameter;
+    const splitId = workspaceid.id.split("-");
     setWorkspaceName(splitId[1]);
     setWorkspaceId(splitId[0]);
     getAllUser(splitId[0]);
     getPorfile();
 
-    /*
     socket.on("connect", () => {
       setIsConnected(true);
     });
 
+    socket.emit("SAVEROOMD", {
+      Id: workspaceid.id,
+      token: localStorage.getItem("token"),
+      socketId: socket.id,
+    });
+
     socket.on("disconnect", () => {
       setIsConnected(false);
+    });
+
+    socket.on("GETMSG", (data) => {
+      console.log(data);
     });
 
     socket.on("pong", () => {
@@ -44,9 +55,14 @@ function AdminChart() {
       socket.off("connect");
       socket.off("disconnect");
       socket.off("pong");
+      socket.off("GETMSG");
     };
-    */
   }, []);
+
+  function SendMessgeToSocket() {
+    const workspaceid = workspaceParameter;
+    socket.emit("MSG", { Message: "HELLO WORLD", Id: workspaceid.id });
+  }
 
   return (
     <div>
@@ -105,7 +121,15 @@ function AdminChart() {
         </div>
         <div className="chats">
           <div className="channelName">{workspaceName}</div>
-          <div className="chatContainer"></div>
+          <div className="chatContainer">
+            <div className="chatCard">
+              <div className="heder">
+                <span>Mohammad kaif</span>
+                <span>7943</span>
+              </div>
+              <div className="chatContent">hello how are you</div>
+            </div>
+          </div>
           <div className="chatForm">
             <div className="upperbutton">
               <button
@@ -203,6 +227,7 @@ function AdminChart() {
                 <button
                   className="btn-plane"
                   style={{ backgroundColor: "rgb(49, 110, 49)" }}
+                  onClick={SendMessgeToSocket}
                 >
                   <i
                     style={{ color: "white" }}
@@ -219,7 +244,6 @@ function AdminChart() {
       </div>
     </div>
   );
-  
 }
 
 export default AdminChart;
