@@ -51,7 +51,7 @@ border-radius: 3px;
 margin: 10px;
 }
 .workspaceCards{
-display: flex;
+display: grid;
 justify-content: center;
 align-items: center;
 }
@@ -61,6 +61,7 @@ align-items: center;
  width: 550px;
  height: 80px;
  padding: 7px;
+ margin: 15px;
 }
 .workspaceCard h1{ 
 font-size: 15px;

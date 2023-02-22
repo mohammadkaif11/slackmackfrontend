@@ -1,33 +1,72 @@
-import React from 'react'
+import React,{useState,useContext,useEffect} from 'react'
+import { useParams } from "react-router-dom"
 import "../Style/Chart.css";
-function Chart() {
+import UserContext from '../Context/UserContext';
+import ChartContext from '../Context/ChartContext';
+
+
+function UserChart() {
+    const user=useContext(UserContext)
+    const chart=useContext(ChartContext)
+    const {profile,getPorfile}=user;
+    const {getAllUser,currentuser,admin,users}=chart;
+  
+    const [workspaceName ,setWorkspaceName]=useState('')
+    const [workspaceId ,setWorkspaceId]=useState('')
+  
+    const id=useParams();
+  
+    useEffect(() => {
+          const Id=id;
+          const data=Id.id.split('-');
+          setWorkspaceName(data[1]);
+          setWorkspaceId(data[0]);
+          getAllUser(data[0]);
+          getPorfile();
+       }, [])
+
   return (
     <div>
-        <div className="ClientTemp">
-
-</div>
 <div className="clientContainer">
    <div className="sidbar">
       <div className="channelName">
-        Shardings
+        {profile.Name}
       </div>
       <div className="channelList">
-        <ul>
-            <li><button>#Genral</button></li>
-            <li><button>#Random</button></li>
-            <li><button>#Software</button></li>
-       </ul>
+      <ul style={{borderTop:"2px solid white"}}>
+          { currentuser.length > 0 &&
+        <li style={{listStyle:'none',color:'white',padding:"3px"}}>
+                    {currentuser[0].Name} (You)
+        </li>
+          }
+      </ul>
+      <ul style={{borderTop:"2px solid white"}}>
+        { admin.length > 0 &&
+        <li style={{listStyle:'none',color:'white',padding:"3px"}}>
+                {admin[0].Name} (admin)
+        </li>
+        }
+      </ul>
+      <ul style={{borderTop:"2px solid white"}}>
+        <li style={{listStyle:'none',color:'grey',padding:"3px"}}>
+          All Users
+        </li>
+         { users.length > 0 && users.map((user)=>{
+          return (<li style={{listStyle:'none',color:'white',padding:"3px"}}>{user.UserName}</li>)
+         })}
+      </ul>
       </div>
    </div>
    <div className="chats">
     <div className="channelName">
-        Shardings
+    {workspaceName}
     </div>
     <div className="chatContainer">
+
     </div>
     <div className="chatForm">
         <div className="upperbutton">
-            <button className="btn-clickforbold bodernone" id="btn-clickforbold"
+        <button className="btn-clickforbold bodernone" id="btn-clickforbold"
             style={{"fontSize": "20px", "backgroundColor":  "rgb(26 29 33)" ,"color": "gray"}}><i
                 className="bi bi-type-bold"></i></button>
         <button className="btn-clickforitalian bodernone" id="btn-clickforitalian"
@@ -54,7 +93,6 @@ function Chart() {
         </form>
         <div className="lowerbutton">
          <div className="left">
-
          </div>
          <div className="right">
             <button className="btn-plane" style={{"backgroundColor": "rgb(49, 110, 49)"}}><i
@@ -64,8 +102,10 @@ function Chart() {
     </div>
    </div>
 </div>
-    </div>
+<div>
+</div>
+</div>
   )
 }
 
-export default Chart
+export default UserChart

@@ -2,6 +2,8 @@ import React from "react";
 import "../Style/LoginPage.css";
 import Logo from "../Content/images/chat.png";
 import video from '../Content/video/hero-product-ui.en-IN.webm';
+import { Link } from "react-router-dom"
+
 function LoginPage() {
   return (
     <div>
@@ -47,8 +49,8 @@ function LoginPage() {
               can work faster and more flexibly than ever before.
             </p>
             <div className="inner_button">
-              <button className="button2">Singup With Email Address</button>
-              <button className="googlebutton">Singup With Google</button>
+              <button className="button2"><Link to="/Login">Singup With Email Address</Link></button>
+              <button className="googlebutton"><Link to="/Login">Singup With Google</Link></button>
             </div>
             <h2>SLACKMACK is free to try for as long as you like</h2>
           </div>

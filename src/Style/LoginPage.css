@@ -56,6 +56,9 @@ Nav {
   font-size: 18px;
   padding: 5px;
 }
+.button2 a{
+  text-decoration: none;
+}
 .homeContainer {
  display: flex;
  align-items: center;
@@ -85,6 +88,9 @@ Nav {
   color: white;
   font-size: 18px;
   padding: 5px;
+}
+.googlebutton a{
+  text-decoration: none;
 }
 .homeContainer .content1 h2{
     font-size: 25px; 
