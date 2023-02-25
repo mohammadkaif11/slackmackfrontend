@@ -7,6 +7,7 @@ const ChartState=(props)=>{
   const [admin ,setAdmin]=useState([])
   const [currentuser,setCurrentUser]=useState([]);
   const [workspace,setWorkspace]=useState({})
+  const [chats,SetChats]=useState([]);
 
     //add user to workspace
     const AddUser=(payLoad)=>{
@@ -49,8 +50,27 @@ const ChartState=(props)=>{
         });
     }
 
+    //const get All Chats 
+    const getAllChats=(workspaceId)=>{
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+          'auth-token': localStorage.getItem("token"),
+        }
+      }
+      axios
+        .get(`http://localhost:5000/workspace/chats/${workspaceId}`,config)
+        .then((res) => {
+          console.log(res.data);
+          SetChats(res.data.chat);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+
     return (
-        <ChartContext.Provider value={{AddUser,getAllUser,users,admin,currentuser,workspace}}>
+        <ChartContext.Provider value={{chats,getAllChats,AddUser,getAllUser,users,admin,currentuser,workspace}}>
                {props.children}
         </ChartContext.Provider>
     )

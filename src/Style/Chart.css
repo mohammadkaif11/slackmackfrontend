@@ -13,8 +13,6 @@
    height: 100%;
    background-color: #19171d;
    border: 1px solid rgb(48, 48, 48);
-
-
 }
 .sidbar .channelName{
    color: white;
@@ -92,6 +90,11 @@ i{
    color: white;
    outline: none;
    margin-right: 5px;
+}
+.chatContainer{
+   height:70%;
+   margin:8px ;
+   overflow-y: scroll;
 }
 .scroll::-webkit-scrollbar {
   display: none;
