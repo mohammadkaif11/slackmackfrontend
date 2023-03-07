@@ -59,14 +59,21 @@ align-items: center;
  border: 2px solid rgb(155, 148, 148);
  border-radius: 10px;
  width: 550px;
- height: 80px;
+ height: 100px;
  padding: 7px;
  margin: 15px;
 }
 .workspaceCard h1{ 
 font-size: 15px;
 }
-.workspaceCard p { 
+.workspaceCard a { 
 font-size: 20px;
 padding: 5px;
+color: #611f69;
+list-style: none;
+text-decoration: none;
+}
+
+.classBottomBorder{
+  border-bottom:gray 4px solid ;
 }

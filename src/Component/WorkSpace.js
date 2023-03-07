@@ -3,7 +3,6 @@ import Logo from "../Content/images/chat.png";
 import "../Style/Workspace.css";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import ChartContext from "../Context/ChartContext";
 import UserContext from "../Context/UserContext";
 
 function WorkSpace() {
@@ -13,9 +12,20 @@ function WorkSpace() {
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    localStorage.removeItem("workspaceIdBetw2");
     if (token == "" || token == undefined || profile == []) {
       navigate("/Login");
     }
+
+    if (localStorage.getItem("username") && localStorage.getItem("u-Id")) {
+      localStorage.removeItem("username");
+      localStorage.removeItem("u-Id");
+    }
+    if (localStorage.getItem("spId") && localStorage.getItem("spName")) {
+      localStorage.removeItem("spId");
+      localStorage.removeItem("spName");
+    }
+    //Get All Workspace for user and admin
     getPorfile();
   }, []);
 
@@ -24,7 +34,7 @@ function WorkSpace() {
   };
 
   const Logout = () => {
-    localStorage.clear("token");
+    localStorage.clear();
     navigate("/Login");
   };
 
@@ -66,31 +76,46 @@ function WorkSpace() {
           </div>
         </div>
       </div>
-      <h2 style={{ textAlign: "center", margin: "50px" }}>Your Organization</h2>
-      <div className="workspaceCards">
-        {workspaces.map((element) => {
-          return (
-            <div className="workspaceCard">
-              <h1> workspaces for {profile.Email}</h1>
-              <hr />
-              <Link
-                to={"/chartAdmin/" + element._id + "-" + element.WorkspaceName}
-              >
-                {element.WorkspaceName}
-              </Link>
-            </div>
-          );
-        })}
-      </div>
+      {workspaces.length > 0 && (
+        <div>
+          <h2
+            className="classBottomBorder"
+            style={{ textAlign: "center", margin: "50px" }}
+          >
+            Your workspaces
+          </h2>
+          <div className="workspaceCards">
+            {workspaces.map((element) => {
+              return (
+                <div className="workspaceCard" key={element._id} >  
+                  <h1>Your workSpace {profile.Email}</h1>
+                  <hr />
+                  <Link
+                    to={
+                      "/chartAdmin/" + element._id + "-" + element.WorkspaceName
+                    }
+                  >
+                    {element.WorkspaceName}
+                  </Link>
+                  <i onClick={()=>{}} className="bi bi-trash" style={{fontSize:"15px"}}></i>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
       {groups.length > 0 && (
         <div>
-          <h2 style={{ textAlign: "center", margin: "50px" }}>
-            Your WorkSpaces
+          <h2
+            className="classBottomBorder"
+            style={{ textAlign: "center", margin: "50px" }}
+          >
+            Available for yours
           </h2>
           <div className="workspaceCards">
             {groups.map((element) => {
               return (
-                <div className="workspaceCard">
+                <div className="workspaceCard" key={element._id}>
                   <h1> workspaces for {profile.Email}</h1>
                   <hr />
                   <Link

@@ -20,6 +20,9 @@
    padding: 20px;
    font-size: 25px;
 }
+.sidbar:hover{
+   cursor: pointer;
+}
 .channelList ul li button{
 margin: 10px;
 padding: 10px;

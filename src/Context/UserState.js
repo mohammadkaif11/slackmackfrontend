@@ -61,6 +61,7 @@ const UserState = (props) => {
     axios
       .get("http://localhost:5000/users/getprofile",config)
       .then((res) => {
+        console.log(res.data);
         setProfile(res.data.profile[0]);
         setWorkspaces(res.data.workspace);
         setGroups(res.data.group)
@@ -86,6 +87,7 @@ const UserState = (props) => {
         console.log(err);
       });
   };
+  
   
   return (
     <UserContext.Provider

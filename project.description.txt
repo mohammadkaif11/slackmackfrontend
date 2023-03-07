@@ -1,0 +1,5 @@
+slackmack is a platform that allows administrators to create a workspace and add users to join the workspace. Once a user joins a workspace, they can communicate with other members of the same workspace through group chats or one-on-one chats.They can message or share files within group and one-on-one chats.
+The application provides a user-friendly interface that allows administrators to manage their workspaces easily.
+They can add or remove members within the workspace. 
+The application is built using modern web technologies and The application's data is stored in a centralized database, which ensures that all data is available at centrailized placed
+"slackmack is designed to improve communication and collaboration within organizations. It is ideal for remote teams, small businesses, and large enterprises looking for an easy-to-use and secure platform for internal communication"

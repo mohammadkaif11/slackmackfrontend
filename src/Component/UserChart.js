@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+
 import "../Style/Chart.css";
 import UserContext from "../Context/UserContext";
 import ChartContext from "../Context/ChartContext";
@@ -10,67 +11,132 @@ function UserChart() {
   const inputFileRef = useRef(null);
 
   const workspaceParameter = useParams();
+  const workspaceid = workspaceParameter;
+
+  const navigate = useNavigate();
+
   const user = useContext(UserContext);
   const chart = useContext(ChartContext);
   const socket = React.useContext(SocketContext);
 
   const { profile, getPorfile } = user;
-  const { getAllUser, currentuser, admin, users, getAllChats, chats } = chart;
+  const {
+    getAllUser,
+    currentuser,
+    admin,
+    users,
+    chats,
+    getAllChats,
+    getChartRoomName,
+    workspaceName,
+    workspaceId,
+    workspace,
+    getAllUserChats,
+  } = chart;
 
   const [message, setMessage] = useState([]);
-  const [workspaceName, setWorkspaceName] = useState("");
-  const [workspaceId, setWorkspaceId] = useState("");
   const [isConnected, setIsConnected] = useState(null);
   const [lastPong, setLastPong] = useState(null);
   const [msg, setMsg] = useState("");
   const [onlineuser, setOnlineUsers] = useState([]);
+  const [allChats, setAllChats] = useState([]);
   const [file, setFile] = useState([]);
   const [isFile, SetIsFile] = useState(false);
 
-  useEffect(() => {
-    const workspaceid = workspaceParameter;
+  //ForChanging room with users
+  const [userid, setUserId] = useState("");
+  const [username, setUserName] = useState("");
+  const [isuser, setIsUser] = useState(false);
 
-    getAllChats(workspaceid.id);
+
+
+  useEffect(() => {
     const splitId = workspaceid.id.split("-");
-    setWorkspaceName(splitId[1]);
-    setWorkspaceId(splitId[0]);
+    //GetProfile and all Userwith Workspace
     getAllUser(splitId[0]);
     getPorfile();
-    scrollToBottom();
+
+    let IsUserExist = CheckwheatherUserPage();
+
+    if (IsUserExist == true) {
+      setUserId(localStorage.getItem("spId"));
+      setIsUser(true);
+      setUserName(localStorage.getItem("spName"));
+    }
+    if (isuser == false && IsUserExist == false) {
+      getAllChats(workspaceid.id);
+      getChartRoomName(workspaceid.id);
+    } else {
+      //Get chat between two users
+      getAllUserChats(workspaceid.id, localStorage.getItem("u-Id"), userid);
+      getChartRoomName(null);
+    }
 
     socket.on("connect", () => {
       setIsConnected(true);
     });
 
-    socket.emit("SAVEROOMD", {
-      Id: workspaceid,
-      token: localStorage.getItem("token"),
-      socketId: socket.id,
-    });
+    //Automatically connect with default Group
+    //User for join two connection
+    if (isuser == false) {
+      socket.emit("SAVEROOMD", {
+        Id: workspaceid,
+        token: localStorage.getItem("token"),
+        socketId: socket.id,
+        isUser: false,
+      });
+    } else {
+      const CommonWorkspaceId = localStorage.getItem("workspaceIdBetw2");
+      if (CommonWorkspaceId) {
+        socket.emit("SAVEROOMD", {
+          Id: CommonWorkspaceId,
+          token: localStorage.getItem("token"),
+          socketId: socket.id,
+          isUser: true,
+        });
+      }
+    }
 
-    socket.on("disconnect", () => {
-      setIsConnected(false);
-    });
-
-    socket.on("GETMSG", (data) => {
-      console.log(data);
-      setMessage((message) => [...message, data]);
-    });
-
-    socket.on("USERID", (data) => {
-      localStorage.setItem("u-Id", data);
-    });
-
+    //Get userName
     socket.on("GETUSERNAME", (data) => {
       localStorage.setItem("username", data);
     });
 
+    //Get Disconnect
+    socket.on("disconnect", () => {
+      setIsConnected(false);
+    });
+
+    //Get UserID
+    socket.on("USERID", (data) => {
+      localStorage.setItem("u-Id", data);
+    });
+
+    //Get Msg
+    socket.on("GETMSG", (data) => {
+      setMessage((message) => [...message, data]);
+      console.log(data);
+    });
+
+    //Get Pong
+    socket.on("pong", () => {
+      setLastPong(new Date().toISOString());
+    });
+
+    //Get OnlineUser
     socket.on("ONLINEUSER", (data) => {
       setOnlineUsers(data);
     });
 
-    socket.on("pong", () => {
-      setLastPong(new Date().toISOString());
+    //Get roomId between tow user and join the two user
+    socket.on("SENDROOMID", (data) => {
+      localStorage.setItem("workspaceIdBetw2", data);
+      socket.emit("SAVEROOMD", {
+        Id: data,
+        token: localStorage.getItem("token"),
+        socketId: socket.id,
+        isUser: true,
+      });
     });
 
     return () => {
@@ -81,71 +147,135 @@ function UserChart() {
       socket.off("GETUSERNAME");
       socket.off("ONLINEUSER");
       socket.off("USERID");
+      socket.off("SENDROOMID");
     };
-  }, []);
+  }, [userid,isuser]);
 
+
+  //Send Message to group/Users/file/msg
   function SendMessgeToSocket() {
     const workspaceid = workspaceParameter;
     var currentDate = new Date();
-
-    if (msg != "" || msg.trim() != "") {
-      if (isFile == false) {
-        const sendObj = {
-          Message: msg,
-          Id: workspaceid.id,
-          UserId: localStorage.getItem("u-Id"),
-          Date: currentDate.toLocaleDateString(),
-          Time: currentDate.toLocaleTimeString(),
-          UserName: localStorage.getItem("username"),
-          IsFile: false,
-          FileExtension: "*",
-        };
-        socket.emit("MSG", sendObj);
-        setMessage((message) => [...message, sendObj]);
-        setMsg("");
-      } else {
-        if (file) {
+    if (isuser == false) {
+      if (msg != "" || msg.trim() != "") {
+        if (isFile == false) {
           const sendObj = {
-            Message: file.name,
+            Message: msg,
             Id: workspaceid.id,
             UserId: localStorage.getItem("u-Id"),
             Date: currentDate.toLocaleDateString(),
             Time: currentDate.toLocaleTimeString(),
             UserName: localStorage.getItem("username"),
-            IsFile: true,
-            FileExtension: getFileExtension(file.name),
+            IsFile: false,
+            FileExtension: "*",
+            withUser: isuser,
           };
-          socket.emit("upload", file,sendObj, (status) => {
-            console.log(status);
-          });
+          socket.emit("MSG", sendObj);
+          sendObj.Id = message.length + 1;
+          setMessage((message) => [...message, sendObj]);
           setMsg("");
-          SetIsFile(false);
         } else {
-          alert("File is empty");
-          return;
+          if (file) {
+            const sendObj = {
+              Message: file.name,
+              Id: workspaceid.id,
+              UserId: localStorage.getItem("u-Id"),
+              Date: currentDate.toLocaleDateString(),
+              Time: currentDate.toLocaleTimeString(),
+              UserName: localStorage.getItem("username"),
+              IsFile: true,
+              FileExtension: getFileExtension(file.name),
+              withUser: isuser,
+            };
+            socket.emit("upload", file, sendObj, (status) => {
+              status.message.ResponseObj.Id = message.length + 1;
+              setMessage((message) => [...message, status.message.ResponseObj]);
+            });
+            setMsg("");
+            SetIsFile(false);
+          } else {
+            alert("File is empty");
+            return;
+          }
         }
+      } else {
+        alert("Not empty message");
       }
     } else {
-      alert("Not empty message");
+      if (msg != "" || msg.trim() != "") {
+        if (isFile == false) {
+          const sendObj = {
+            Message: msg,
+            Id: localStorage.getItem("workspaceIdBetw2"),
+            UserId: localStorage.getItem("u-Id"),
+            Date: currentDate.toLocaleDateString(),
+            Time: currentDate.toLocaleTimeString(),
+            UserName: localStorage.getItem("username"),
+            IsFile: false,
+            FileExtension: "*",
+            withUser: isuser,
+            SecondUserId: localStorage.getItem("spId"),
+            SecondUserName: localStorage.getItem("spName"),
+            workspaceId: workspaceid.id,
+          };
+          socket.emit("MSG", sendObj);
+          sendObj.Id = message.length + 1;
+          setMessage((message) => [...message, sendObj]);
+          setMsg("");
+        } else {
+          if (file) {
+            const sendObj = {
+              Message: file.name,
+              Id: localStorage.getItem("workspaceIdBetw2"),
+              UserId: localStorage.getItem("u-Id"),
+              Date: currentDate.toLocaleDateString(),
+              Time: currentDate.toLocaleTimeString(),
+              UserName: localStorage.getItem("username"),
+              IsFile: true,
+              FileExtension: getFileExtension(file.name),
+              withUser: isuser,
+              SecondUserId: localStorage.getItem("spId"),
+              SecondUserName: localStorage.getItem("spName"),
+              workspaceId: workspaceid.id,
+            };
+            socket.emit("upload", file, sendObj, (status) => {
+              status.message.ResponseObj.Id = message.length + 1;
+              setMessage((message) => [...message, status.message.ResponseObj]);
+            });
+            setMsg("");
+            SetIsFile(false);
+          } else {
+            alert("File is empty");
+            return;
+          }
+        }
+      } else {
+        alert("Not empty message");
+      }
     }
   }
 
+
+  // handle file change
   const handleChange = (event) => {
     setMsg(event.target.value);
   };
 
+  //handle file change
   const handleFileChange = (e) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
-      setMsg(e.target.files[0].name + "->");
+      setMsg(e.target.files[0].name + "file have to send");
     }
   };
 
+  //uploadFile 
   const UploadFile = () => {
     inputFileRef.current.click();
     SetIsFile(true);
   };
 
+  //get FileExtension
   function getFileExtension(filename) {
     const extension = filename.substring(
       filename.lastIndexOf(".") + 1,
@@ -154,15 +284,53 @@ function UserChart() {
     return extension;
   }
 
+  //Change Rooms to users
+  const ChangeRoomComponent = (obj) => {
+    setUserId(obj.userId);
+    setUserName(obj.userName);
+    localStorage.setItem("spId", obj.userId);
+    localStorage.setItem("spName", obj.userName);
+    setIsUser(true);
+    console.log("Change Room Component call");
+    const data = {
+      workspaceId: workspaceid,
+      from: localStorage.getItem("u-Id"),
+      fromName: localStorage.getItem("username"),
+      to: obj.userId,
+      toName: obj.userName,
+    };
+    console.log(data);
+    socket.emit("createRoom2", data);
+    socket.emit("UnscribeRoom",workspaceid.id);
+    setMessage([]);
+  };
+
+  //Wheater User page when refresh
+  const CheckwheatherUserPage = () => {
+    if (localStorage.getItem("spId")) {
+      return true;
+    }
+    return false;
+  };
+
+  //Jump to main Room
+  const JumptoMainRomm = () => {
+    if (localStorage.getItem("spId")) {
+      socket.emit("UnscribeRoom",localStorage.getItem("workspaceIdBetw2"));
+      localStorage.removeItem("spId");
+      localStorage.removeItem("spName");
+      localStorage.removeItem("workspaceIdBetw2");
+      setIsUser(false);
+      setUserId("");
+      setUserName("");
+      setMessage([]);
+    }
+  };
+
+  //scrolltoBottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-  
-
-  //change room Function
-  const ChangeRoomComponent=(Id)=>{
-     console.log(Id)
-  }
 
   return (
     <div>
@@ -190,21 +358,19 @@ function UserChart() {
             </ul>
             <ul style={{ borderTop: "2px solid white" }}>
               <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
-                Your Worspace
-              </li>
-              <li style={{ listStyle: "none", color: "white", padding: "3px" }}>
-                {workspaceName}
-              </li>
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
                 All Users
               </li>
               {users.length > 0 &&
                 users.map((user) => {
                   return (
                     <li
-                    onClick={ChangeRoomComponent(user._id)}
+                      key={user._id || user.UserId}
+                      onClick={() => {
+                        ChangeRoomComponent({
+                          userId: user.UserId,
+                          userName: user.UserName,
+                        });
+                      }}
                       style={{
                         listStyle: "none",
                         color: "white",
@@ -232,7 +398,7 @@ function UserChart() {
                     >
                       {user.Name}{" "}
                       <i
-                        class="bi bi-dot"
+                        className="bi bi-dot"
                         style={{
                           color: "green",
                           fontSize: "20px",
@@ -243,38 +409,101 @@ function UserChart() {
                   );
                 })}
             </ul>
+
+            <ul style={{ borderTop: "2px solid white" }}>
+              <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
+                Your WorkSpace
+              </li>
+              <li
+                onClick={() => {
+                  JumptoMainRomm();
+                }}
+                style={{
+                  listStyle: "none",
+                  color: "white",
+                  padding: "3px",
+                }}
+              >
+                {workspace.WorkspaceName}
+              </li>
+            </ul>
           </div>
         </div>
         <div className="chats">
-          <div className="channelName">{workspaceName}</div>
+          {!isuser && <div className="channelName">{workspaceName}</div>}
+          {isuser && <div className="channelName">{username}</div>}
           <div className="chatContainer scroll" ref={messagesEndRef}>
             {chats.length > 0 &&
               chats.map((Element) => {
-                return (
-                  <div className="chatCard">
-                    <div className="heder">
-                      <span>{Element.UserName}</span>
-                      <span>{Element.Time}</span>
+                if (Element.IsFile == false) {
+                  return (
+                    <div className="chatCard" key={Element._id}>
+                      <div className="heder">
+                        <span>{Element.UserName}</span>
+                        <span>
+                          {Element.Time} {Element.Date}
+                        </span>
+                      </div>
+                      <div className="chatContent">{Element.Content}</div>
                     </div>
-                    <div className="chatContent">{Element.Content}</div>
-                  </div>
-                );
+                  );
+                } else {
+                  return (
+                    <div className="chatCard" key={Element._id}>
+                      <div className="heder">
+                        <span>{Element.UserName}</span>
+                        <span>
+                          {Element.Time} {Element.Date}
+                        </span>
+                      </div>
+                      <div className="chatContent">
+                        <a
+                          href={
+                            "http://localhost:5000/download/" + Element.Content
+                          }
+                        >
+                          Dwonload File
+                        </a>
+                      </div>
+                    </div>
+                  );
+                }
               })}
-
             {message.length > 0 &&
               message.map((Element) => {
-                return (
-                  <div className="chatCard">
-                    <div className="heder">
-                      <span>{Element.UserName}</span>
-                      <span>
-                        {Element.Time}
-                        {Element.Date}
-                      </span>
+                if (Element.IsFile == false) {
+                  return (
+                    <div className="chatCard" key={Element.Id}>
+                      <div className="heder">
+                        <span>{Element.UserName}</span>
+                        <span>
+                          {Element.Time} {Element.Date}
+                        </span>
+                      </div>
+                      <div className="chatContent">{Element.Message}</div>
                     </div>
-                    <div className="chatContent">{Element.Message}</div>
-                  </div>
-                );
+                  );
+                } else {
+                  return (
+                    <div className="chatCard" key={Element.Id}>
+                      <div className="heder">
+                        <span>{Element.UserName}</span>
+                        <span>
+                          {Element.Time} {Element.Date}
+                        </span>
+                      </div>
+                      <div className="chatContent">
+                        <a
+                          href={
+                            "http://localhost:5000/download/" + Element.Message
+                          }
+                        >
+                          Dwonload File
+                        </a>
+                      </div>
+                    </div>
+                  );
+                }
               })}
           </div>
           <div className="chatForm">
