@@ -42,6 +42,11 @@ Install packages
 ```bash
  npm install
 ```
+run
+
+```bash
+ npm run
+```
 
 Now Enjoy the Project 
 
