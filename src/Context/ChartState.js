@@ -21,7 +21,7 @@ const ChartState=(props)=>{
         }
       }
         axios
-        .post("http://localhost:5000/workspace/addgroup", payLoad,config)
+        .post("https://slackmackbackend.onrender.com/workspace/addgroup", payLoad,config)
         .then((res) => {
           alert(res.data.Message);
           console.log(res.data);
@@ -40,7 +40,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .get(`http://localhost:5000/workspace/getuser/${workspaceId}`,config)
+        .get(`https://slackmackbackend.onrender.com/workspace/getuser/${workspaceId}`,config)
         .then((res) => {
          console.log(res.data)
          setCurrentUser(res.data.user)
@@ -62,7 +62,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .get(`http://localhost:5000/workspace/chats/${workspaceId}`,config)
+        .get(`https://slackmackbackend.onrender.com/workspace/chats/${workspaceId}`,config)
         .then((res) => {
           console.log(res.data);
           SetChats(res.data.chat);
@@ -80,7 +80,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .get(`http://localhost:5000/users/roomName/${workspaceurl}`,config)
+        .get(`https://slackmackbackend.onrender.com/users/roomName/${workspaceurl}`,config)
         .then((res) => {
           console.log(res.data);
           setWorkSpaceId(res.data.Id);
@@ -104,7 +104,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .post(`http://localhost:5000/workspace/userchats/${workspaceId}`,payLoad,config)
+        .post(`https://slackmackbackend.onrender.com/workspace/userchats/${workspaceId}`,payLoad,config)
         .then((res) => {
           console.log('-----------get user chats--------------');
           console.log(res.data);
@@ -125,7 +125,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .get(`http://localhost:5000/workspace/deleteuser/${id}`,config)
+        .get(`https://slackmackbackend.onrender.com/workspace/deleteuser/${id}`,config)
         .then((res) => {
            console.log(res.data);
            alert(res.data.Message)
