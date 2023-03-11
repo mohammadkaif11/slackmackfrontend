@@ -1,70 +1,56 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Hi, I'm mohammad kaif! 👋
 
-## Available Scripts
 
-In the project directory, you can run:
+## 🚀 About Me
+I'm a Software Engineer... Here I describe one of my project.
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+# SLACKMACK
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+slackmack is a platform that allows administrators to create a workspace and add users to join the workspace. Once a user joins a workspace, they can communicate with other members of the same workspace through group chats or one-on-one chats .They can message or share files within group and one-on-one chats. The application provides a user-friendly interface that allows administrators to manage their workspaces easily. They can add or remove members within the workspace.  The application is built using modern web technologies and The application's data is stored in a centralized database, which ensures that all data is available at centralized placed. " slackmack is designed to improve communication and collaboration within organizations. It is ideal for remote teams, small businesses, and large enterprises looking for an easy-to-use and secure platform for internal communication".
+## Tech Stack
+**Client:** React js , Javascript, Bootstrap
 
-### `npm test`
+**Server:** Express framework , socket.io , JWT token
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Programming Language:** Nodejs
 
-### `npm run build`
+**Storge Provider:** Amazon S3 bucket
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Authentication and Authorization:**  Google Oauth 2.0
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Database:** NOSQL (Mongodb)
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Backend Link
+```bash
+  https://github.com/mohammadkaif11/slackmackbackend
+```
 
-### `npm run eject`
+## Run Locally
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Clone the project we required both backend and frontend.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+  git clone https://github.com/mohammadkaif11/slackmackfrontend
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+for run this project we need visual studio code.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Install packages
 
-## Learn More
+```bash
+ npm install
+```
+run
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+ npm run
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Now Enjoy the Project 
 
-### Code Splitting
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🔗 Links
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mohammad-kaif-21076b217/)
+[![resume](https://img.shields.io/badge/resume-0A66C2?style=for-the-badge&logo=canva&logoColor=white)](https://www.canva.com/design/DAFK5eHFz3w/4MA-VLpA4ZPUq-UWxWlctA/view?utm_content=DAFK5eHFz3w&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
