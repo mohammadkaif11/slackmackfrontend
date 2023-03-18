@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import Modal from "./Modal";
+
 import "../Style/Chart.css";
 import UserContext from "../Context/UserContext";
 import ChartContext from "../Context/ChartContext";
@@ -11,12 +12,15 @@ function AdminChart() {
   const workspaceid = workspaceParameter;
 
   const inputFileRef = useRef(null);
+  const messagesEndRef = useRef(null);
+
 
   const user = useContext(UserContext);
   const chart = useContext(ChartContext);
   const socket = React.useContext(SocketContext);
 
   const { profile, getPorfile } = user;
+  
   const {
     getAllUser,
     currentuser,
@@ -46,6 +50,7 @@ function AdminChart() {
   const [isuser, setIsUser] = useState(false);
 
   useEffect(() => {
+    scrollToBottom();
     const splitId = workspaceid.id.split("-");
     getAllUser(splitId[0]);
     getPorfile();
@@ -106,6 +111,8 @@ function AdminChart() {
 
     socket.on("GETMSG", (data) => {
       setMessage((message) => [...message, data]);
+      socket.emit("recived",true)
+      scrollToBottom();
     });
 
     socket.on("pong", () => {
@@ -138,6 +145,11 @@ function AdminChart() {
     };
   }, [userid, isuser]);
 
+
+   //To ScrollTobottom();
+   useEffect(()=>{
+    scrollToBottom();
+  })
 
   //Send Message to group/Users/file/msg
   function SendMessgeToSocket() {
@@ -241,6 +253,7 @@ function AdminChart() {
         alert("Not empty message");
       }
     }
+    scrollToBottom();
   }
 
   // handle msg change
@@ -320,6 +333,12 @@ function AdminChart() {
     getAllUser(splitId[0]);
     getPorfile();
   }
+
+    //scrolltoBottom
+  const scrollToBottom = () => {
+      document.getElementsByClassName('chatContainer')[0].scroll(0,messagesEndRef.current.clientHeight*10000);
+   };
+
 
   return (
     <div>
@@ -454,7 +473,7 @@ function AdminChart() {
         <div className="chats">
           {!isuser && <div className="channelName">{workspaceName}</div>}
           {isuser && <div className="channelName">{username}</div>}
-          <div className="chatContainer">
+          <div className="chatContainer scroll"  ref={messagesEndRef}>
             {chats.length > 0 &&
               chats.map((Element) => {
                 if (Element.IsFile == false) {
@@ -491,6 +510,7 @@ function AdminChart() {
                   );
                 }
               })}
+              
             {message.length > 0 &&
               message.map((Element) => {
                 if (Element.IsFile == false) {

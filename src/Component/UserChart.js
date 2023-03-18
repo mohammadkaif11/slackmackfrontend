@@ -20,6 +20,7 @@ function UserChart() {
   const socket = React.useContext(SocketContext);
 
   const { profile, getPorfile } = user;
+
   const {
     getAllUser,
     currentuser,
@@ -115,7 +116,7 @@ function UserChart() {
     //Get Msg
     socket.on("GETMSG", (data) => {
       setMessage((message) => [...message, data]);
-      console.log(data);
+      scrollToBottom();
     });
 
     //Get Pong
@@ -139,6 +140,7 @@ function UserChart() {
       });
     });
 
+  
     return () => {
       socket.off("connect");
       socket.off("disconnect");
@@ -150,6 +152,12 @@ function UserChart() {
       socket.off("SENDROOMID");
     };
   }, [userid,isuser]);
+
+
+  //To ScrollTobottom();
+  useEffect(()=>{
+    scrollToBottom();
+  })
 
 
   //Send Message to group/Users/file/msg
@@ -253,6 +261,7 @@ function UserChart() {
         alert("Not empty message");
       }
     }
+    scrollToBottom();
   }
 
 
@@ -329,8 +338,8 @@ function UserChart() {
 
   //scrolltoBottom
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+      document.getElementsByClassName('chatContainer')[0].scroll(0,messagesEndRef.current.clientHeight*10000);
+    };
 
   return (
     <div>
@@ -409,7 +418,6 @@ function UserChart() {
                   );
                 })}
             </ul>
-
             <ul style={{ borderTop: "2px solid white" }}>
               <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
                 Your WorkSpace
