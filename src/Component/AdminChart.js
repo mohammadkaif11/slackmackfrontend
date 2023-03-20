@@ -1,26 +1,46 @@
 import React, { useState, useContext, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import Modal from "./Modal";
 
 import "../Style/Chart.css";
 import UserContext from "../Context/UserContext";
 import ChartContext from "../Context/ChartContext";
 import SocketContext from "../Context/socket";
+import CreateChannelModal from "../Modal/CreateChannelModal";
+import AddUserWorkspaceModal from "../Modal/AddUserWorkspaceModal";
+import AddUserChannelModal from "../Modal/AddUserChannelModal";
+import CurrentUserbar from "./Sidebar/CurrentUserbar";
+import Adminbar from "./Sidebar/Adminbar";
+import AllUserbar from "./Sidebar/AllUserbar";
+import OnlineUserbar from "./Sidebar/OnlineUserbar";
+import CreateChannels from "./AdminSidebar/CreateChannels";
+import MainWorkspace from "./AdminSidebar/MainWorkspace";
+import ChannelsWorkspace from "./AdminSidebar/ChannelsWorkspace";
+import SimpleChatbox from "./Chats/SimpleChatbox";
+import SimpleFile from "./Chats/SimpleFile";
+import PngFile from "./Chats/PngFile";
+import JpgFile from "./Chats/JpgFile";
+import MsgSimpleChatbox from "./SendMessage/MsgSimpleChatbox";
+import MsgSimpleFile from "./SendMessage/MsgSimpleFile";
+import MsgPngFile from "./SendMessage/MsgPngFile";
+import MsgJpgFile from "./SendMessage/MsgJpgFile";
+import FormsButton from "./InputButtons/FormsButton";
+import InputForms from "./InputButtons/InputForms";
+import LowerButtons from "./InputButtons/LowerButtons";
 
 function AdminChart() {
+  const navigate = useNavigate();
   const workspaceParameter = useParams();
   const workspaceid = workspaceParameter;
 
   const inputFileRef = useRef(null);
   const messagesEndRef = useRef(null);
 
-
   const user = useContext(UserContext);
   const chart = useContext(ChartContext);
   const socket = React.useContext(SocketContext);
 
   const { profile, getPorfile } = user;
-  
+
   const {
     getAllUser,
     currentuser,
@@ -33,7 +53,9 @@ function AdminChart() {
     workspaceId,
     workspace,
     getAllUserChats,
-    removeUserApi
+    removeUserApi,
+    getChannel,
+    channels,
   } = chart;
 
   const [message, setMessage] = useState([]);
@@ -48,12 +70,16 @@ function AdminChart() {
   const [userid, setUserId] = useState("");
   const [username, setUserName] = useState("");
   const [isuser, setIsUser] = useState(false);
+  const [currentRoom, SetCurrentRoom] = useState("");
 
   useEffect(() => {
     scrollToBottom();
     const splitId = workspaceid.id.split("-");
+    getChartRoomName(splitId[0]);
+    SetCurrentRoom(splitId[1]);
     getAllUser(splitId[0]);
     getPorfile();
+    getChannel(splitId[0]);
 
     let IsUserExist = CheckwheatherUserPage();
     if (IsUserExist == true) {
@@ -64,14 +90,12 @@ function AdminChart() {
 
     if (isuser == false && IsUserExist == false) {
       //Get all chart within groups and group name
+      //get all Chart with   current
       getAllChats(workspaceid.id);
-      getChartRoomName(workspaceid.id);
     } else {
       //Get all Chart between the users
-      getAllUserChats(workspaceid.id, localStorage.getItem("u-Id"), userid);
-      getChartRoomName(null);
+      getAllUserChats(splitId[0], localStorage.getItem("u-Id"), userid);
     }
-
 
     socket.on("connect", () => {
       setIsConnected(true);
@@ -111,7 +135,6 @@ function AdminChart() {
 
     socket.on("GETMSG", (data) => {
       setMessage((message) => [...message, data]);
-      socket.emit("recived",true)
       scrollToBottom();
     });
 
@@ -143,13 +166,12 @@ function AdminChart() {
       socket.off("USERID");
       socket.off("SENDROOMID");
     };
-  }, [userid, isuser]);
+  }, [userid, isuser, currentRoom]);
 
-
-   //To ScrollTobottom();
-   useEffect(()=>{
+  //To ScrollTobottom();
+  useEffect(() => {
     scrollToBottom();
-  })
+  }, [userid, isuser, currentRoom]);
 
   //Send Message to group/Users/file/msg
   function SendMessgeToSocket() {
@@ -170,7 +192,7 @@ function AdminChart() {
             withUser: isuser,
           };
           socket.emit("MSG", sendObj);
-          sendObj.Id=message.length+1;
+          sendObj.Id = message.length + 1;
           setMessage((message) => [...message, sendObj]);
           setMsg("");
         } else {
@@ -188,7 +210,7 @@ function AdminChart() {
             };
             socket.emit("upload", file, sendObj, (status) => {
               console.log(status);
-              status.message.ResponseObj.Id=message.length+1;
+              status.message.ResponseObj.Id = message.length + 1;
               setMessage((message) => [...message, status.message.ResponseObj]);
             });
             setMsg("");
@@ -216,10 +238,10 @@ function AdminChart() {
             withUser: isuser,
             SecondUserId: localStorage.getItem("spId"),
             SecondUserName: localStorage.getItem("spName"),
-            workspaceId: workspaceid.id,
+            workspaceId:workspaceId,
           };
           socket.emit("MSG", sendObj);
-          sendObj.Id=message.length+1;
+          sendObj.Id = message.length + 1;
           setMessage((message) => [...message, sendObj]);
           setMsg("");
         } else {
@@ -236,10 +258,10 @@ function AdminChart() {
               withUser: isuser,
               SecondUserId: localStorage.getItem("spId"),
               SecondUserName: localStorage.getItem("spName"),
-              workspaceId: workspaceid.id,
+              workspaceId:workspaceId,
             };
             socket.emit("upload", file, sendObj, (status) => {
-              status.message.ResponseObj.Id=message.length+1;
+              status.message.ResponseObj.Id = message.length + 1;
               setMessage((message) => [...message, status.message.ResponseObj]);
             });
             setMsg("");
@@ -284,25 +306,6 @@ function AdminChart() {
     return extension;
   }
 
-  //Change Rooms to user
-  const ChangeRoomComponent = (obj) => {
-    setUserId(obj.userId);
-    setUserName(obj.userName);
-    localStorage.setItem("spId", obj.userId);
-    localStorage.setItem("spName", obj.userName);
-    setIsUser(true);
-    console.log("Change Room Component call");
-    const data = {
-      workspaceId: workspaceid,
-      fromName: localStorage.getItem("username"),
-      from: localStorage.getItem("u-Id"),
-      to: obj.userId,
-      toName: obj.userName,
-    };
-    socket.emit("createRoom2", data);
-    socket.emit("UnscribeRoom",workspaceid.id);
-    setMessage([]);
-  };
 
   //Check when Refresh the user Page or not
   const CheckwheatherUserPage = () => {
@@ -312,33 +315,87 @@ function AdminChart() {
     return false;
   };
 
-  //jump to main room
-  const JumptoMainRomm = () => {
+  //Const Remove User
+  const RemoveUser = (id) => {
+    const splitId = workspaceid.id.split("-");
+    removeUserApi(id);
+    getAllUser(splitId[0]);
+    getPorfile();
+  };
+
+  //scrolltoBottom
+  const scrollToBottom = () => {
+    document
+      .getElementsByClassName("chatContainer")[0]
+      .scroll(0, messagesEndRef.current.clientHeight * 10000);
+  };
+
+   //jump to main room ||User -->MainRoom ,Channel --> MainRoom
+   const jumptoMainRoom = () => {
+    const splitId = workspaceid.id.split("-");
     if (localStorage.getItem("spId")) {
-      socket.emit("UnscribeRoom",localStorage.getItem("workspaceIdBetw2"));
+      socket.emit("UnscribeRoom", localStorage.getItem("workspaceIdBetw2"));
+      setIsUser(false);
+      setUserId("");
+      setUserName("");
+      setMessage([]);
+      localStorage.removeItem("spId");
+      localStorage.removeItem("spName");
+      localStorage.removeItem("workspaceIdBetw2");
+    } else {
+      socket.emit("UnscribeRoom",workspaceid.id);
+      setMessage([]);
+      SetCurrentRoom(workspaceName);
+      navigate(`/chartAdmin/${splitId[0]}-${workspaceName}`);
+    }
+  };
+
+  //Change Rooms to users || Main-->User,User-=>User,Channel-->User
+  const ChangeRoomComponent = (obj) => {
+      const CommonWorkspaceId = localStorage.getItem("workspaceIdBetw2");
+      if(CommonWorkspaceId){
+        socket.emit("UnscribeRoom",CommonWorkspaceId);
+      }
+      socket.emit("UnscribeRoom",workspaceid.id);
+      setUserId(obj.userId);
+      setUserName(obj.userName);
+      localStorage.setItem("spId", obj.userId);
+      localStorage.setItem("spName", obj.userName);
+      setIsUser(true);
+      const data = {
+        workspaceId: workspaceId,
+        from: localStorage.getItem("u-Id"),
+        fromName: localStorage.getItem("username"),
+        to: obj.userId,
+        toName: obj.userName,
+      };
+      socket.emit("createRoom2", data);
+      setMessage([]);
+    };
+
+
+  //Change Channel  || Channel -->Channel,User-->Channel,Main-->Channel
+  const changeChannel = (channelName) => {
+    const splitId = workspaceid.id.split("-");
+    //CHECK if User is on 
+    if (localStorage.getItem("spId")) {
+      socket.emit("UnscribeRoom", localStorage.getItem("workspaceIdBetw2"));
       localStorage.removeItem("spId");
       localStorage.removeItem("spName");
       localStorage.removeItem("workspaceIdBetw2");
       setIsUser(false);
       setUserId("");
       setUserName("");
+      SetCurrentRoom(channelName);
       setMessage([]);
+      navigate(`/chartAdmin/${splitId[0]}-${channelName}`);
+    } else {
+      socket.emit("UnscribeRoom",workspaceid.id);
+      SetCurrentRoom(channelName);
+      setMessage([]);
+      navigate(`/chartAdmin/${splitId[0]}-${channelName}`);
     }
   };
-
-  //Const Remove User
-  const RemoveUser=(id)=>{
-    const splitId = workspaceid.id.split("-");
-    removeUserApi(id)
-    getAllUser(splitId[0]);
-    getPorfile();
-  }
-
-    //scrolltoBottom
-  const scrollToBottom = () => {
-      document.getElementsByClassName('chatContainer')[0].scroll(0,messagesEndRef.current.clientHeight*10000);
-   };
-
 
   return (
     <div>
@@ -346,360 +403,91 @@ function AdminChart() {
         <div className="sidbar">
           <div className="channelName">{profile.Name}</div>
           <div className="channelList">
-            <ul>
-              <li style={{ listStyle: "none", color: "white" }}>
-                ADD MEMBER{" "}
-                <i
-                  className="bi bi-person-plus-fill mx-2"
-                  data-bs-toggle="modal"
-                  data-bs-target="#exampleModal"
-                ></i>
-              </li>
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              {currentuser.length > 0 && (
-                <li
-                  style={{ listStyle: "none", color: "white", padding: "3px" }}
-                >
-                  {currentuser[0].Name} (You)
-                </li>
-              )}
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              {admin.length > 0 && (
-                <li
-                  style={{ listStyle: "none", color: "white", padding: "3px" }}
-                >
-                  {admin[0].Name} (admin)
-                </li>
-              )}
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
-                Remove Bucket
-              </li>
-              {users.length > 0 &&
-                users.map((user) => {
-                  return (
-                    <li
-                      style={{
-                        listStyle: "none",
-                        color: "white",
-                        padding: "3px",
-                      }}
-
-                      key={user._id||user.UserId}
-                    >
-                      {user.UserName}
-                      <i onClick={()=>{RemoveUser(user._id)}} className="bi bi-trash mx-3" style={{fontSize:"15px"}}></i>
-                    </li>
-                  );
-                })}
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
-                All Users
-              </li>
-              {users.length > 0 &&
-                users.map((user) => {
-                  return (
-                    <li
-                      onClick={() => {
-                        ChangeRoomComponent({
-                          userId: user.UserId,
-                          userName: user.UserName,
-                        });
-                      }}
-                      style={{
-                        listStyle: "none",
-                        color: "white",
-                        padding: "3px",
-                      }}
-
-                      key={user._id||user.UserId}
-                    >
-                      {user.UserName}
-                    </li>
-                  );
-                })}
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
-                Online Users
-              </li>
-              {users.length > 0 &&
-                onlineuser.map((user) => {
-                  return (
-                    <li
-                     key={user._id}
-                      style={{
-                        listStyle: "none",
-                        color: "white",
-                        padding: "3px",
-                      }}
-                    >
-                      {user.Name}{" "}
-                      <i
-                        className="bi bi-dot"
-                        style={{
-                          color: "green",
-                          fontSize: "20px",
-                          fontWeight: "bold",
-                        }}
-                      ></i>
-                    </li>
-                  );
-                })}
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
-                Your WorkSpace
-              </li>
-              <li
-                onClick={() => {
-                  JumptoMainRomm();
-                }}
-                style={{
-                  listStyle: "none",
-                  color: "white",
-                  padding: "3px",
-                }}
-              >
-                {workspace.WorkspaceName}
-              </li>
-            </ul>
+            <CurrentUserbar currentuser={currentuser} />
+            <Adminbar admin={admin} />
+            <AllUserbar
+              users={users}
+              ChangeRoomComponent={ChangeRoomComponent}
+            />
+            <OnlineUserbar onlineuser={onlineuser} />
+            <CreateChannels />
+            <MainWorkspace
+              jumptoMainRoom={jumptoMainRoom}
+              workspace={workspace}
+            />
+            <ChannelsWorkspace
+              channels={channels}
+              changeChannel={changeChannel}
+            />
           </div>
         </div>
         <div className="chats">
-          {!isuser && <div className="channelName">{workspaceName}</div>}
+          {!isuser && <div className="channelName">{currentRoom}</div>}
           {isuser && <div className="channelName">{username}</div>}
-          <div className="chatContainer scroll"  ref={messagesEndRef}>
+          <div className="chatContainer scroll" ref={messagesEndRef}>
             {chats.length > 0 &&
-              chats.map((Element) => {
+              chats.map((Element,Index) => {
                 if (Element.IsFile == false) {
-                  return (
-                    <div className="chatCard" key={Element._id}>
-                      <div className="heder">
-                        <span>{Element.UserName}</span>
-                        <span>
-                          {Element.Time} {Element.Date}
-                        </span>
-                      </div>
-                      <div className="chatContent">{Element.Content}</div>
-                    </div>
-                  );
+                  return <SimpleChatbox Object={Element} key={Index}/>;
                 } else {
-                  return (
-                    <div className="chatCard" key={Element._id}>
-                      <div className="heder">
-                        <span>{Element.UserName}</span>
-                        <span>
-                          {Element.Time} {Element.Date}
-                        </span>
-                      </div>
-                      <div className="chatContent">
-                        <a
-                          href={
-                            "http://localhost:5000/download/" + Element.Content
-                          }
-                        >
-                          Dwonload File
-                        </a>
-                      </div>
-                    </div>
-                  );
+                  if (Element.FileExtension == "png") {
+                    return <PngFile Object={Element}  key={Index}/>;
+                  } else if (Element.FileExtension == "jpg") {
+                    return <JpgFile Object={Element} key={Index}/>;
+                  } else {
+                    return <SimpleFile Object={Element}  key={Index}/>;
+                  }
                 }
               })}
-              
+
             {message.length > 0 &&
-              message.map((Element) => {
+              message.map((Element,Index) => {
                 if (Element.IsFile == false) {
-                  return (
-                    <div className="chatCard" key={Element.Id}>
-                      <div className="heder">
-                        <span>{Element.UserName}</span>
-                        <span>
-                          {Element.Time} {Element.Date}
-                        </span>
-                      </div>
-                      <div className="chatContent">{Element.Message}</div>
-                    </div>
-                  );
+                  return <MsgSimpleChatbox Object={Element} key={Index} />;
                 } else {
-                  return (
-                    <div className="chatCard" key={Element.Id}>
-                      <div className="heder">
-                        <span>{Element.UserName}</span>
-                        <span>
-                          {Element.Time} {Element.Date}
-                        </span>
-                      </div>
-                      <div className="chatContent">
-                        <a
-                          href={
-                            "http://localhost:5000/download/" + Element.Message
-                          }
-                        >
-                          Dwonload File
-                        </a>
-                      </div>
-                    </div>
-                  );
+                  if (Element.FileExtension == "png") {
+                    return (<MsgPngFile Object={Element} key={Index} />);
+                  } else if (Element.FileExtension == "jpg") {
+                    return (<MsgJpgFile Object={Element} key={Index} />);
+                  } else {
+                    return (<MsgSimpleFile Object={Element} key={Index}/>);
+                  }                
                 }
               })}
           </div>
           <div className="chatForm">
-            <div className="upperbutton">
-              <button
-                className="btn-clickforbold bodernone"
-                id="btn-clickforbold"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-type-bold"></i>
-              </button>
-              <button
-                className="btn-clickforitalian bodernone"
-                id="btn-clickforitalian"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-type-italic"></i>
-              </button>
-              <button
-                className="btn-strikethrough bodernone"
-                id="btn-strikethrough"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="fa fa-strikethrough"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-clickforlink bodernone"
-                id="btn-clickforlink"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-link"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-sendlilist bodernone"
-                id="btn-sendlilist"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-list-ol"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-sendollist bodernone"
-                id="btn-sendollist"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-list-ul"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-sendcode bodernone"
-                id="btn-sendcode"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-code"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-sendcode bodernone"
-                id="btn-sendcode"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <input
-                  type="file"
-                  hidden
-                  onChange={handleFileChange}
-                  ref={inputFileRef}
-                />
-                <i className="bi bi-plus-circle" onClick={UploadFile}></i>
-              </button>
-            </div>
-            <form>
-              <textarea
-                name="sendChat"
-                className="scroll"
-                placeholder="Enter Chats here"
-                onChange={handleChange}
-                value={msg}
-              ></textarea>
-            </form>
-            <div className="lowerbutton">
-              <div className="left"></div>
-              <div className="right">
-                <button
-                  className="btn-plane"
-                  style={{ backgroundColor: "rgb(49, 110, 49)" }}
-                  onClick={SendMessgeToSocket}
-                >
-                  <i
-                    style={{ color: "white" }}
-                    className="fas fa-paper-plane"
-                  ></i>
-                </button>{" "}
-                <span>|</span>
-                <button
-                  className="btn-sendcode bodernone"
-                  id="btn-sendcode"
-                  style={{
-                    fontSize: "20px",
-                    backgroundColor: "rgb(26 29 33)",
-                    color: "gray",
-                  }}
-                >
-                  <input
-                    type="file"
-                    hidden
-                    onChange={handleFileChange}
-                    ref={inputFileRef}
-                  />
-                  <i className="bi bi-plus-circle" onClick={UploadFile}></i>
-                </button>
-              </div>
-            </div>
+            <FormsButton UploadFile={UploadFile} inputFileRef={inputFileRef} handleFileChange={handleFileChange} />
+            <InputForms handleChange={handleChange}  msg={msg}/>
+            <LowerButtons SendMessgeToSocket={SendMessgeToSocket} />
           </div>
         </div>
       </div>
       <div>
-        <Modal />
+        <CreateChannelModal />
+        
+        <AddUserWorkspaceModal
+          WorkspaceId={workspaceId}
+          channelName={workspaceName}
+          ModalId={workspaceName}
+        />
+
+        {channels.length > 0 &&
+          channels.map((channel, Index) => {
+            return (
+              <AddUserChannelModal
+                key={Index}
+                channelId={channel._id}
+                WorkspaceId={workspaceId}
+                channelName={channel.ChannelName}
+                ModalId={channel.ChannelName}
+              />
+            );
+          })}
+
+      
       </div>
     </div>
   );
 }
 
-export default AdminChart;
+export default React.memo(AdminChart);

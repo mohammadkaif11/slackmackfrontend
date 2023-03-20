@@ -8,9 +8,9 @@ const ChartState=(props)=>{
   const [currentuser,setCurrentUser]=useState([]);
   const [workspace,setWorkspace]=useState({})
   const [chats,SetChats]=useState([]);
+  const [channels,SetChannels]=useState([]); 
   const [workspaceId,setWorkSpaceId]=useState("");
   const [workspaceName,setWorkSpaceName]=useState("");
-
 
     //add user to workspace
     const AddUser=(payLoad)=>{
@@ -72,6 +72,7 @@ const ChartState=(props)=>{
         });
     }
 
+    //Const Get Chart Room 
     const getChartRoomName=(workspaceurl)=>{
       let config = {
         headers: {
@@ -80,16 +81,18 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .get(`http://localhost:5000/users/roomName/${workspaceurl}`,config)
+        .get(`http://localhost:5000/workspace/getWorkspacedetails/${workspaceurl}`,config)
         .then((res) => {
-          console.log(res.data);
-          setWorkSpaceId(res.data.Id);
-          setWorkSpaceName(res.data.Name);
+          setWorkSpaceId(res.data.Workspace._id);
+          setWorkSpaceName(res.data.Workspace.WorkspaceName);
         })
         .catch((err) => {
           console.log(err);
         });
     }
+
+
+
 
      //const get All Chats 
      const getAllUserChats=(workspaceId,firstUserId,secondUserId)=>{
@@ -135,9 +138,88 @@ const ChartState=(props)=>{
         });
     }
 
+     //add user to workspace
+     const createChannel=(payLoad)=>{
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+          'auth-token': localStorage.getItem("token"),
+        }
+      }
+        axios
+        .post("http://localhost:5000/workspace/createchannel", payLoad,config)
+        .then((res) => {
+          alert(res.data.Message);
+          console.log(res.data);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+
+
+     //add getChannels to workspace
+    const getChannel=(workspaceId)=>{
+      const payLoad={workSpaceId:workspaceId}
+
+      let config = {
+        headers: {
+          "Content-Type": "application/json",
+          'auth-token': localStorage.getItem("token"),
+        }
+      }
+        axios
+        .post("http://localhost:5000/workspace/getchannels", payLoad,config)
+        .then((res) => {
+          console.log('---Get Channels---',res.data.Channels);
+          SetChannels(res.data.Channels);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+
+   //add user to workspace
+   const addChannel=(payLoad)=>{
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'auth-token': localStorage.getItem("token"),
+      }
+    }
+      axios
+      .post("http://localhost:5000/workspace/addchannel", payLoad,config)
+      .then((res) => {
+        alert(res.data.Message);
+        console.log(res.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+   //Const Get Chart Room 
+   const getUserChannel=(workspaceurl)=>{
+    console.log(workspaceurl);
+    let config = {
+      headers: {
+        "Content-Type": "application/json",
+        'auth-token': localStorage.getItem("token"),
+      }
+    }
+    axios
+      .get(`http://localhost:5000/workspace/getChannels/${workspaceurl}`,config)
+      .then((res) => {
+        alert(res.data.Message);
+        SetChannels(res.data.Channel);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
     return (
-        <ChartContext.Provider value={{removeUserApi,getAllUserChats,workspaceName,workspaceId,chats,getAllChats,AddUser,getAllUser,users,admin,currentuser,workspace,getChartRoomName}}>
+        <ChartContext.Provider value={{getUserChannel,addChannel,channels,getChannel,createChannel,removeUserApi,getAllUserChats,workspaceName,workspaceId,chats,getAllChats,AddUser,getAllUser,users,admin,currentuser,workspace,getChartRoomName}}>
                {props.children}
         </ChartContext.Provider>
     )

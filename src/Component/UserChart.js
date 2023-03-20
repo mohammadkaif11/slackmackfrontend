@@ -5,6 +5,23 @@ import "../Style/Chart.css";
 import UserContext from "../Context/UserContext";
 import ChartContext from "../Context/ChartContext";
 import SocketContext from "../Context/socket";
+import CurrentUserbar from "./Sidebar/CurrentUserbar";
+import Adminbar from "./Sidebar/Adminbar";
+import AllUserbar from "./Sidebar/AllUserbar";
+import OnlineUserbar from "./Sidebar/OnlineUserbar";
+import MainRoombar from "./Sidebar/MainRoombar";
+import Channelsbar from "./Sidebar/Channelsbar";
+import FormsButton from "./InputButtons/FormsButton";
+import InputForms from "./InputButtons/InputForms";
+import LowerButtons from "./InputButtons/LowerButtons";
+import SimpleChatbox from "./Chats/SimpleChatbox";
+import SimpleFile from "./Chats/SimpleFile";
+import PngFile from "./Chats/PngFile";
+import JpgFile from "./Chats/JpgFile";
+import MsgSimpleChatbox from "./SendMessage/MsgSimpleChatbox";
+import MsgSimpleFile from "./SendMessage/MsgSimpleFile";
+import MsgPngFile from "./SendMessage/MsgPngFile";
+import MsgJpgFile from "./SendMessage/MsgJpgFile";
 
 function UserChart() {
   const messagesEndRef = useRef(null);
@@ -33,6 +50,8 @@ function UserChart() {
     workspaceId,
     workspace,
     getAllUserChats,
+    getUserChannel,
+    channels
   } = chart;
 
   const [message, setMessage] = useState([]);
@@ -43,6 +62,8 @@ function UserChart() {
   const [allChats, setAllChats] = useState([]);
   const [file, setFile] = useState([]);
   const [isFile, SetIsFile] = useState(false);
+  const [currentRoom, SetCurrentRoom] = useState('');
+
 
   //ForChanging room with users
   const [userid, setUserId] = useState("");
@@ -56,6 +77,9 @@ function UserChart() {
     //GetProfile and all Userwith Workspace
     getAllUser(splitId[0]);
     getPorfile();
+    getChartRoomName(splitId[0]);
+    getUserChannel(splitId[0])
+    SetCurrentRoom(splitId[1])
 
     let IsUserExist = CheckwheatherUserPage();
 
@@ -66,11 +90,9 @@ function UserChart() {
     }
     if (isuser == false && IsUserExist == false) {
       getAllChats(workspaceid.id);
-      getChartRoomName(workspaceid.id);
     } else {
       //Get chat between two users
-      getAllUserChats(workspaceid.id, localStorage.getItem("u-Id"), userid);
-      getChartRoomName(null);
+      getAllUserChats(splitId[0], localStorage.getItem("u-Id"), userid);
     }
 
     socket.on("connect", () => {
@@ -151,13 +173,13 @@ function UserChart() {
       socket.off("USERID");
       socket.off("SENDROOMID");
     };
-  }, [userid,isuser]);
+  }, [userid, isuser, currentRoom]);
 
 
   //To ScrollTobottom();
   useEffect(()=>{
     scrollToBottom();
-  })
+  },[userid, isuser, currentRoom])
 
 
   //Send Message to group/Users/file/msg
@@ -224,7 +246,7 @@ function UserChart() {
             withUser: isuser,
             SecondUserId: localStorage.getItem("spId"),
             SecondUserName: localStorage.getItem("spName"),
-            workspaceId: workspaceid.id,
+            workspaceId:workspaceId,
           };
           socket.emit("MSG", sendObj);
           sendObj.Id = message.length + 1;
@@ -244,7 +266,7 @@ function UserChart() {
               withUser: isuser,
               SecondUserId: localStorage.getItem("spId"),
               SecondUserName: localStorage.getItem("spName"),
-              workspaceId: workspaceid.id,
+              workspaceId: workspaceId,
             };
             socket.emit("upload", file, sendObj, (status) => {
               status.message.ResponseObj.Id = message.length + 1;
@@ -263,7 +285,6 @@ function UserChart() {
     }
     scrollToBottom();
   }
-
 
   // handle file change
   const handleChange = (event) => {
@@ -293,26 +314,7 @@ function UserChart() {
     return extension;
   }
 
-  //Change Rooms to users
-  const ChangeRoomComponent = (obj) => {
-    setUserId(obj.userId);
-    setUserName(obj.userName);
-    localStorage.setItem("spId", obj.userId);
-    localStorage.setItem("spName", obj.userName);
-    setIsUser(true);
-    console.log("Change Room Component call");
-    const data = {
-      workspaceId: workspaceid,
-      from: localStorage.getItem("u-Id"),
-      fromName: localStorage.getItem("username"),
-      to: obj.userId,
-      toName: obj.userName,
-    };
-    console.log(data);
-    socket.emit("createRoom2", data);
-    socket.emit("UnscribeRoom",workspaceid.id);
-    setMessage([]);
-  };
+
 
   //Wheater User page when refresh
   const CheckwheatherUserPage = () => {
@@ -322,24 +324,77 @@ function UserChart() {
     return false;
   };
 
-  //Jump to main Room
-  const JumptoMainRomm = () => {
+  //scrolltoBottom
+  const scrollToBottom = () => {
+      document.getElementsByClassName('chatContainer')[0].scroll(0,messagesEndRef.current.clientHeight*100000000);
+    };
+
+
+  //jump to main room ||User -->MainRoom ,Channel --> MainRoom
+  const jumptoMainRoom = () => {
+    const splitId = workspaceid.id.split("-");
     if (localStorage.getItem("spId")) {
-      socket.emit("UnscribeRoom",localStorage.getItem("workspaceIdBetw2"));
+      socket.emit("UnscribeRoom", localStorage.getItem("workspaceIdBetw2"));
+      setIsUser(false);
+      setUserId("");
+      setUserName("");
+      setMessage([]);
+      localStorage.removeItem("spId");
+      localStorage.removeItem("spName");
+      localStorage.removeItem("workspaceIdBetw2");
+    } else {
+      socket.emit("UnscribeRoom",workspaceid.id);
+      setMessage([]);
+      SetCurrentRoom(workspaceName);
+      navigate(`/chartUser/${splitId[0]}-${workspaceName}`);
+    }
+  };
+
+  //Change Rooms to users || Main-->User,User-=>User,Channel-->User
+  const ChangeRoomComponent = (obj) => {
+      const CommonWorkspaceId = localStorage.getItem("workspaceIdBetw2");
+      if(CommonWorkspaceId){
+        socket.emit("UnscribeRoom",CommonWorkspaceId);
+      }
+      socket.emit("UnscribeRoom",workspaceid.id);
+      setUserId(obj.userId);
+      setUserName(obj.userName);
+      localStorage.setItem("spId", obj.userId);
+      localStorage.setItem("spName", obj.userName);
+      setIsUser(true);
+      const data = {
+        workspaceId: workspaceId,
+        from: localStorage.getItem("u-Id"),
+        fromName: localStorage.getItem("username"),
+        to: obj.userId,
+        toName: obj.userName,
+      };
+      socket.emit("createRoom2", data);
+      setMessage([]);
+    };
+
+  //Change Channel  || Channel -->Channel,User-->Channel,Main-->Channel
+  const changeChannel = (channelName) => {
+    const splitId = workspaceid.id.split("-");
+    //CHECK if User is on 
+    if (localStorage.getItem("spId")) {
+      socket.emit("UnscribeRoom", localStorage.getItem("workspaceIdBetw2"));
       localStorage.removeItem("spId");
       localStorage.removeItem("spName");
       localStorage.removeItem("workspaceIdBetw2");
       setIsUser(false);
       setUserId("");
       setUserName("");
+      SetCurrentRoom(channelName);
       setMessage([]);
+      navigate(`/chartUser/${splitId[0]}-${channelName}`);
+    } else {
+      socket.emit("UnscribeRoom",workspaceid.id);
+      SetCurrentRoom(channelName);
+      setMessage([]);
+      navigate(`/chartUser/${splitId[0]}-${channelName}`);
     }
   };
-
-  //scrolltoBottom
-  const scrollToBottom = () => {
-      document.getElementsByClassName('chatContainer')[0].scroll(0,messagesEndRef.current.clientHeight*10000);
-    };
 
   return (
     <div>
@@ -347,299 +402,53 @@ function UserChart() {
         <div className="sidbar">
           <div className="channelName">{profile.Name}</div>
           <div className="channelList">
-            <ul style={{ borderTop: "2px solid white" }}>
-              {currentuser.length > 0 && (
-                <li
-                  style={{ listStyle: "none", color: "white", padding: "3px" }}
-                >
-                  {currentuser[0].Name} (You)
-                </li>
-              )}
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              {admin.length > 0 && (
-                <li
-                  style={{ listStyle: "none", color: "white", padding: "3px" }}
-                >
-                  {admin[0].Name} (admin)
-                </li>
-              )}
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
-                All Users
-              </li>
-              {users.length > 0 &&
-                users.map((user) => {
-                  return (
-                    <li
-                      key={user._id || user.UserId}
-                      onClick={() => {
-                        ChangeRoomComponent({
-                          userId: user.UserId,
-                          userName: user.UserName,
-                        });
-                      }}
-                      style={{
-                        listStyle: "none",
-                        color: "white",
-                        padding: "3px",
-                      }}
-                    >
-                      {user.UserName}
-                    </li>
-                  );
-                })}
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
-                Online Users
-              </li>
-              {users.length > 0 &&
-                onlineuser.map((user) => {
-                  return (
-                    <li
-                      style={{
-                        listStyle: "none",
-                        color: "white",
-                        padding: "3px",
-                      }}
-                    >
-                      {user.Name}{" "}
-                      <i
-                        className="bi bi-dot"
-                        style={{
-                          color: "green",
-                          fontSize: "20px",
-                          fontWeight: "bold",
-                        }}
-                      ></i>
-                    </li>
-                  );
-                })}
-            </ul>
-            <ul style={{ borderTop: "2px solid white" }}>
-              <li style={{ listStyle: "none", color: "grey", padding: "3px" }}>
-                Your WorkSpace
-              </li>
-              <li
-                onClick={() => {
-                  JumptoMainRomm();
-                }}
-                style={{
-                  listStyle: "none",
-                  color: "white",
-                  padding: "3px",
-                }}
-              >
-                {workspace.WorkspaceName}
-              </li>
-            </ul>
+            <CurrentUserbar currentuser={currentuser} />
+            <Adminbar admin={admin}/>
+            <AllUserbar users={users} ChangeRoomComponent={ChangeRoomComponent} />
+            <OnlineUserbar  onlineuser={onlineuser}/>
+            <MainRoombar jumptoMainRoom={jumptoMainRoom} workspace={workspace} />
+            <Channelsbar  channels={channels} changeChannel={changeChannel}/>
           </div>
         </div>
         <div className="chats">
-          {!isuser && <div className="channelName">{workspaceName}</div>}
+          {!isuser && <div className="channelName">{currentRoom}</div>}
           {isuser && <div className="channelName">{username}</div>}
           <div className="chatContainer scroll" ref={messagesEndRef}>
             {chats.length > 0 &&
               chats.map((Element) => {
                 if (Element.IsFile == false) {
                   return (
-                    <div className="chatCard" key={Element._id}>
-                      <div className="heder">
-                        <span>{Element.UserName}</span>
-                        <span>
-                          {Element.Time} {Element.Date}
-                        </span>
-                      </div>
-                      <div className="chatContent">{Element.Content}</div>
-                    </div>
+                    <SimpleChatbox Object={Element} />
                   );
                 } else {
-                  return (
-                    <div className="chatCard" key={Element._id}>
-                      <div className="heder">
-                        <span>{Element.UserName}</span>
-                        <span>
-                          {Element.Time} {Element.Date}
-                        </span>
-                      </div>
-                      <div className="chatContent">
-                        <a
-                          href={
-                            "http://localhost:5000/download/" + Element.Content
-                          }
-                        >
-                          Dwonload File
-                        </a>
-                      </div>
-                    </div>
-                  );
+                  if (Element.FileExtension == "png") {
+                    return (<PngFile Object={Element} />);
+                  } else if (Element.FileExtension == "jpg") {
+                    return (<JpgFile Object={Element} />);
+                  } else {
+                    return (<SimpleFile Object={Element} />);
+                  }
                 }
               })}
             {message.length > 0 &&
               message.map((Element) => {
                 if (Element.IsFile == false) {
-                  return (
-                    <div className="chatCard" key={Element.Id}>
-                      <div className="heder">
-                        <span>{Element.UserName}</span>
-                        <span>
-                          {Element.Time} {Element.Date}
-                        </span>
-                      </div>
-                      <div className="chatContent">{Element.Message}</div>
-                    </div>
-                  );
+                 return <MsgSimpleChatbox Object={Element} />;
                 } else {
-                  return (
-                    <div className="chatCard" key={Element.Id}>
-                      <div className="heder">
-                        <span>{Element.UserName}</span>
-                        <span>
-                          {Element.Time} {Element.Date}
-                        </span>
-                      </div>
-                      <div className="chatContent">
-                        <a
-                          href={
-                            "http://localhost:5000/download/" + Element.Message
-                          }
-                        >
-                          Dwonload File
-                        </a>
-                      </div>
-                    </div>
-                  );
+                  if (Element.FileExtension == "png") {
+                    return (<MsgPngFile Object={Element} />);
+                  } else if (Element.FileExtension == "jpg") {
+                    return (<MsgJpgFile Object={Element} />);
+                  } else {
+                    return (<MsgPngFile Object={Element} />);
+                  }
                 }
               })}
           </div>
           <div className="chatForm">
-            <div className="upperbutton">
-              <button
-                className="btn-clickforbold bodernone"
-                id="btn-clickforbold"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-type-bold"></i>
-              </button>
-              <button
-                className="btn-clickforitalian bodernone"
-                id="btn-clickforitalian"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-type-italic"></i>
-              </button>
-              <button
-                className="btn-strikethrough bodernone"
-                id="btn-strikethrough"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="fa fa-strikethrough"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-clickforlink bodernone"
-                id="btn-clickforlink"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-link"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-sendlilist bodernone"
-                id="btn-sendlilist"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-list-ol"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-sendollist bodernone"
-                id="btn-sendollist"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-list-ul"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-sendcode bodernone"
-                id="btn-sendcode"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <i className="bi bi-code"></i>
-              </button>{" "}
-              <span>|</span>
-              <button
-                className="btn-sendcode bodernone"
-                id="btn-sendcode"
-                style={{
-                  fontSize: "20px",
-                  backgroundColor: "rgb(26 29 33)",
-                  color: "gray",
-                }}
-              >
-                <input
-                  type="file"
-                  hidden
-                  onChange={handleFileChange}
-                  ref={inputFileRef}
-                />
-                <i className="bi bi-plus-circle" onClick={UploadFile}></i>
-              </button>
-            </div>
-            <form>
-              <textarea
-                onChange={handleChange}
-                value={msg}
-                name="sendChat"
-                className="scroll"
-                placeholder="Enter Chats here"
-              ></textarea>
-            </form>
-            <div className="lowerbutton">
-              <div className="left"></div>
-              <div className="right">
-                <button
-                  className="btn-plane"
-                  style={{ backgroundColor: "rgb(49, 110, 49)" }}
-                  onClick={SendMessgeToSocket}
-                >
-                  <i
-                    style={{ color: "white" }}
-                    className="fas fa-paper-plane"
-                  ></i>
-                </button>
-              </div>
-            </div>
+            <FormsButton UploadFile={UploadFile} inputFileRef={inputFileRef} handleFileChange={handleFileChange} />
+            <InputForms handleChange={handleChange}  msg={msg}/>
+            <LowerButtons SendMessgeToSocket={SendMessgeToSocket} />
           </div>
         </div>
       </div>
