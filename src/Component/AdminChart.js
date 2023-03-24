@@ -72,15 +72,23 @@ function AdminChart() {
   const [isuser, setIsUser] = useState(false);
   const [currentRoom, SetCurrentRoom] = useState("");
 
-  useEffect(() => {
-    scrollToBottom();
+
+  //get channels and all users
+  useEffect(()=>{
     const splitId = workspaceid.id.split("-");
     getChartRoomName(splitId[0]);
     SetCurrentRoom(splitId[1]);
     getAllUser(splitId[0]);
     getPorfile();
     getChannel(splitId[0]);
+  },[])
 
+  
+
+  useEffect(() => {
+    scrollToBottom();
+    const splitId = workspaceid.id.split("-");
+    
     let IsUserExist = CheckwheatherUserPage();
     if (IsUserExist == true) {
       setUserId(localStorage.getItem("spId"));
@@ -102,7 +110,7 @@ function AdminChart() {
     });
 
     //Automatically join with default Group or within user
-    if (isuser == false) {
+    if (isuser == false && IsUserExist == false) {
       socket.emit("SAVEROOMD", {
         Id: workspaceid,
         token: localStorage.getItem("token"),
@@ -209,7 +217,6 @@ function AdminChart() {
               withUser: isuser,
             };
             socket.emit("upload", file, sendObj, (status) => {
-              console.log(status);
               status.message.ResponseObj.Id = message.length + 1;
               setMessage((message) => [...message, status.message.ResponseObj]);
             });
@@ -490,4 +497,4 @@ function AdminChart() {
   );
 }
 
-export default React.memo(AdminChart);
+export default AdminChart;

@@ -54,4 +54,4 @@ function AddUserWorkspaceModal(props) {
   )
 }
 
-export default AddUserWorkspaceModal
+export default React.memo(AddUserWorkspaceModal)

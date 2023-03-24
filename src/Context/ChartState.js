@@ -24,10 +24,9 @@ const ChartState=(props)=>{
         .post("http://localhost:5000/workspace/addgroup", payLoad,config)
         .then((res) => {
           alert(res.data.Message);
-          console.log(res.data);
         })
         .catch((err) => {
-          console.log(err);
+          console.log('Error :', err);
         });
     }
 
@@ -42,14 +41,13 @@ const ChartState=(props)=>{
       axios
         .get(`http://localhost:5000/workspace/getuser/${workspaceId}`,config)
         .then((res) => {
-         console.log(res.data)
          setCurrentUser(res.data.user)
          setAdmin(res.data.admin)
          setWorkspace(res.data.workspace)
          setUsers(res.data.groups)
         })
         .catch((err) => {
-          console.log(err);
+          console.log('Error :', err);
         });
     }
 
@@ -64,11 +62,10 @@ const ChartState=(props)=>{
       axios
         .get(`http://localhost:5000/workspace/chats/${workspaceId}`,config)
         .then((res) => {
-          console.log(res.data);
           SetChats(res.data.chat);
         })
         .catch((err) => {
-          console.log(err);
+          console.log('Error :', err);
         });
     }
 
@@ -87,7 +84,7 @@ const ChartState=(props)=>{
           setWorkSpaceName(res.data.Workspace.WorkspaceName);
         })
         .catch((err) => {
-          console.log(err);
+          console.log('Error :', err);
         });
     }
 
@@ -109,12 +106,10 @@ const ChartState=(props)=>{
       axios
         .post(`http://localhost:5000/workspace/userchats/${workspaceId}`,payLoad,config)
         .then((res) => {
-          console.log('-----------get user chats--------------');
-          console.log(res.data);
           SetChats(res.data.chat);
         })
         .catch((err) => {
-          console.log(err);
+          console.log('Error :', err);
         });
     }
 
@@ -130,11 +125,10 @@ const ChartState=(props)=>{
       axios
         .get(`http://localhost:5000/workspace/deleteuser/${id}`,config)
         .then((res) => {
-           console.log(res.data);
            alert(res.data.Message)
         })
         .catch((err) => {
-          console.log(err);
+          console.log('Remove User from group failed ',err);
         });
     }
 
@@ -150,15 +144,14 @@ const ChartState=(props)=>{
         .post("http://localhost:5000/workspace/createchannel", payLoad,config)
         .then((res) => {
           alert(res.data.Message);
-          console.log(res.data);
         })
         .catch((err) => {
-          console.log(err);
+          console.log('Create Channel Error: ' + err.message);  
         });
     }
 
 
-     //add getChannels to workspace
+     //add getChannels to workspace to admin
     const getChannel=(workspaceId)=>{
       const payLoad={workSpaceId:workspaceId}
 
@@ -171,11 +164,10 @@ const ChartState=(props)=>{
         axios
         .post("http://localhost:5000/workspace/getchannels", payLoad,config)
         .then((res) => {
-          console.log('---Get Channels---',res.data.Channels);
           SetChannels(res.data.Channels);
         })
         .catch((err) => {
-          console.log(err);
+          console.log('Error getting channels', err);
         });
     }
 
@@ -191,16 +183,14 @@ const ChartState=(props)=>{
       .post("http://localhost:5000/workspace/addchannel", payLoad,config)
       .then((res) => {
         alert(res.data.Message);
-        console.log(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        console.log('Error adding channels', err);
       });
   }
 
    //Const Get Chart Room 
    const getUserChannel=(workspaceurl)=>{
-    console.log(workspaceurl);
     let config = {
       headers: {
         "Content-Type": "application/json",
@@ -210,11 +200,10 @@ const ChartState=(props)=>{
     axios
       .get(`http://localhost:5000/workspace/getChannels/${workspaceurl}`,config)
       .then((res) => {
-        alert(res.data.Message);
         SetChannels(res.data.Channel);
       })
       .catch((err) => {
-        console.log(err);
+        console.log('Error getting channels', err);
       });
   }
 

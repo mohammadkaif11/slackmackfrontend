@@ -51,7 +51,7 @@ function UserChart() {
     workspace,
     getAllUserChats,
     getUserChannel,
-    channels
+    channels,
   } = chart;
 
   const [message, setMessage] = useState([]);
@@ -62,24 +62,35 @@ function UserChart() {
   const [allChats, setAllChats] = useState([]);
   const [file, setFile] = useState([]);
   const [isFile, SetIsFile] = useState(false);
-  const [currentRoom, SetCurrentRoom] = useState('');
-
+  const [currentRoom, SetCurrentRoom] = useState("");
 
   //ForChanging room with users
   const [userid, setUserId] = useState("");
   const [username, setUserName] = useState("");
   const [isuser, setIsUser] = useState(false);
 
-
-
   useEffect(() => {
+    console.log(
+      "-------------userEffect getting allUser and Channel --------------------------------`"
+    );
     const splitId = workspaceid.id.split("-");
     //GetProfile and all Userwith Workspace
     getAllUser(splitId[0]);
     getPorfile();
     getChartRoomName(splitId[0]);
-    getUserChannel(splitId[0])
-    SetCurrentRoom(splitId[1])
+    getUserChannel(splitId[0]);
+  }, []);
+
+  useEffect(() => {
+
+    console.log(
+      "-------------userEffect main --------------------------------`"
+    );
+    scrollToBottom();
+
+    const splitId = workspaceid.id.split("-");
+    //GetProfile and all Userwith Workspace
+    SetCurrentRoom(splitId[1]);
 
     let IsUserExist = CheckwheatherUserPage();
 
@@ -101,7 +112,7 @@ function UserChart() {
 
     //Automatically connect with default Group
     //User for join two connection
-    if (isuser == false) {
+    if (isuser == false && IsUserExist == false) {
       socket.emit("SAVEROOMD", {
         Id: workspaceid,
         token: localStorage.getItem("token"),
@@ -162,7 +173,6 @@ function UserChart() {
       });
     });
 
-  
     return () => {
       socket.off("connect");
       socket.off("disconnect");
@@ -175,12 +185,13 @@ function UserChart() {
     };
   }, [userid, isuser, currentRoom]);
 
-
   //To ScrollTobottom();
-  useEffect(()=>{
+  useEffect(() => {
+    console.log(
+      "-------------userEffect UserScrolling --------------------------------`"
+    );
     scrollToBottom();
-  },[userid, isuser, currentRoom])
-
+  }, [userid, isuser, currentRoom]);
 
   //Send Message to group/Users/file/msg
   function SendMessgeToSocket() {
@@ -246,7 +257,7 @@ function UserChart() {
             withUser: isuser,
             SecondUserId: localStorage.getItem("spId"),
             SecondUserName: localStorage.getItem("spName"),
-            workspaceId:workspaceId,
+            workspaceId: workspaceId,
           };
           socket.emit("MSG", sendObj);
           sendObj.Id = message.length + 1;
@@ -299,7 +310,7 @@ function UserChart() {
     }
   };
 
-  //uploadFile 
+  //uploadFile
   const UploadFile = () => {
     inputFileRef.current.click();
     SetIsFile(true);
@@ -314,8 +325,6 @@ function UserChart() {
     return extension;
   }
 
-
-
   //Wheater User page when refresh
   const CheckwheatherUserPage = () => {
     if (localStorage.getItem("spId")) {
@@ -326,9 +335,10 @@ function UserChart() {
 
   //scrolltoBottom
   const scrollToBottom = () => {
-      document.getElementsByClassName('chatContainer')[0].scroll(0,messagesEndRef.current.clientHeight*100000000);
-    };
-
+    document
+      .getElementsByClassName("chatContainer")[0]
+      .scroll(0, messagesEndRef.current.clientHeight * 100000000);
+  };
 
   //jump to main room ||User -->MainRoom ,Channel --> MainRoom
   const jumptoMainRoom = () => {
@@ -343,7 +353,7 @@ function UserChart() {
       localStorage.removeItem("spName");
       localStorage.removeItem("workspaceIdBetw2");
     } else {
-      socket.emit("UnscribeRoom",workspaceid.id);
+      socket.emit("UnscribeRoom", workspaceid.id);
       setMessage([]);
       SetCurrentRoom(workspaceName);
       navigate(`/chartUser/${splitId[0]}-${workspaceName}`);
@@ -352,31 +362,31 @@ function UserChart() {
 
   //Change Rooms to users || Main-->User,User-=>User,Channel-->User
   const ChangeRoomComponent = (obj) => {
-      const CommonWorkspaceId = localStorage.getItem("workspaceIdBetw2");
-      if(CommonWorkspaceId){
-        socket.emit("UnscribeRoom",CommonWorkspaceId);
-      }
-      socket.emit("UnscribeRoom",workspaceid.id);
-      setUserId(obj.userId);
-      setUserName(obj.userName);
-      localStorage.setItem("spId", obj.userId);
-      localStorage.setItem("spName", obj.userName);
-      setIsUser(true);
-      const data = {
-        workspaceId: workspaceId,
-        from: localStorage.getItem("u-Id"),
-        fromName: localStorage.getItem("username"),
-        to: obj.userId,
-        toName: obj.userName,
-      };
-      socket.emit("createRoom2", data);
-      setMessage([]);
+    const CommonWorkspaceId = localStorage.getItem("workspaceIdBetw2");
+    if (CommonWorkspaceId) {
+      socket.emit("UnscribeRoom", CommonWorkspaceId);
+    }
+    socket.emit("UnscribeRoom", workspaceid.id);
+    setUserId(obj.userId);
+    setUserName(obj.userName);
+    localStorage.setItem("spId", obj.userId);
+    localStorage.setItem("spName", obj.userName);
+    setIsUser(true);
+    const data = {
+      workspaceId: workspaceId,
+      from: localStorage.getItem("u-Id"),
+      fromName: localStorage.getItem("username"),
+      to: obj.userId,
+      toName: obj.userName,
     };
+    socket.emit("createRoom2", data);
+    setMessage([]);
+  };
 
   //Change Channel  || Channel -->Channel,User-->Channel,Main-->Channel
   const changeChannel = (channelName) => {
     const splitId = workspaceid.id.split("-");
-    //CHECK if User is on 
+    //CHECK if User is on
     if (localStorage.getItem("spId")) {
       socket.emit("UnscribeRoom", localStorage.getItem("workspaceIdBetw2"));
       localStorage.removeItem("spId");
@@ -389,7 +399,7 @@ function UserChart() {
       setMessage([]);
       navigate(`/chartUser/${splitId[0]}-${channelName}`);
     } else {
-      socket.emit("UnscribeRoom",workspaceid.id);
+      socket.emit("UnscribeRoom", workspaceid.id);
       SetCurrentRoom(channelName);
       setMessage([]);
       navigate(`/chartUser/${splitId[0]}-${channelName}`);
@@ -403,11 +413,17 @@ function UserChart() {
           <div className="channelName">{profile.Name}</div>
           <div className="channelList">
             <CurrentUserbar currentuser={currentuser} />
-            <Adminbar admin={admin}/>
-            <AllUserbar users={users} ChangeRoomComponent={ChangeRoomComponent} />
-            <OnlineUserbar  onlineuser={onlineuser}/>
-            <MainRoombar jumptoMainRoom={jumptoMainRoom} workspace={workspace} />
-            <Channelsbar  channels={channels} changeChannel={changeChannel}/>
+            <Adminbar admin={admin} />
+            <AllUserbar
+              users={users}
+              ChangeRoomComponent={ChangeRoomComponent}
+            />
+            <OnlineUserbar onlineuser={onlineuser} />
+            <MainRoombar
+              jumptoMainRoom={jumptoMainRoom}
+              workspace={workspace}
+            />
+            <Channelsbar channels={channels} changeChannel={changeChannel} />
           </div>
         </div>
         <div className="chats">
@@ -417,37 +433,39 @@ function UserChart() {
             {chats.length > 0 &&
               chats.map((Element) => {
                 if (Element.IsFile == false) {
-                  return (
-                    <SimpleChatbox Object={Element} />
-                  );
+                  return <SimpleChatbox Object={Element} />;
                 } else {
                   if (Element.FileExtension == "png") {
-                    return (<PngFile Object={Element} />);
+                    return <PngFile Object={Element} />;
                   } else if (Element.FileExtension == "jpg") {
-                    return (<JpgFile Object={Element} />);
+                    return <JpgFile Object={Element} />;
                   } else {
-                    return (<SimpleFile Object={Element} />);
+                    return <SimpleFile Object={Element} />;
                   }
                 }
               })}
             {message.length > 0 &&
               message.map((Element) => {
                 if (Element.IsFile == false) {
-                 return <MsgSimpleChatbox Object={Element} />;
+                  return <MsgSimpleChatbox Object={Element} />;
                 } else {
                   if (Element.FileExtension == "png") {
-                    return (<MsgPngFile Object={Element} />);
+                    return <MsgPngFile Object={Element} />;
                   } else if (Element.FileExtension == "jpg") {
-                    return (<MsgJpgFile Object={Element} />);
+                    return <MsgJpgFile Object={Element} />;
                   } else {
-                    return (<MsgPngFile Object={Element} />);
+                    return <MsgPngFile Object={Element} />;
                   }
                 }
               })}
           </div>
           <div className="chatForm">
-            <FormsButton UploadFile={UploadFile} inputFileRef={inputFileRef} handleFileChange={handleFileChange} />
-            <InputForms handleChange={handleChange}  msg={msg}/>
+            <FormsButton
+              UploadFile={UploadFile}
+              inputFileRef={inputFileRef}
+              handleFileChange={handleFileChange}
+            />
+            <InputForms handleChange={handleChange} msg={msg} />
             <LowerButtons SendMessgeToSocket={SendMessgeToSocket} />
           </div>
         </div>

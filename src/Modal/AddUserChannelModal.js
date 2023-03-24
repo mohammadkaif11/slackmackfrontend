@@ -2,8 +2,11 @@ import React,{useState,useContext,useEffect} from 'react'
 import ChartContext from '../Context/ChartContext';
 import { useParams } from "react-router-dom"
 
+let i=0;
 function AddUserChannelModal(props) {
-  console.log('channelName',props.channelName)  
+  
+  console.log('channelName '+i,props.channelName) 
+  i++; 
 
   const [workspaceName ,setWorkspaceName]=useState('')
   const [workspaceId ,setWorkspaceId]=useState('')
@@ -56,4 +59,4 @@ function AddUserChannelModal(props) {
   )
 }
 
-export default AddUserChannelModal
+export default React.memo(AddUserChannelModal)

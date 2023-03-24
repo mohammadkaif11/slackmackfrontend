@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect,useState } from "react";
 import Logo from "../Content/images/chat.png";
 import "../Style/Workspace.css";
 import { Link } from "react-router-dom";
@@ -7,6 +7,7 @@ import UserContext from "../Context/UserContext";
 
 function WorkSpace() {
   const user = useContext(UserContext);
+  const [isUserLogount, setIsUserLogout] = useState(false);
   const { profile, getPorfile, workspaces, groups } = user;
   const navigate = useNavigate();
 
@@ -14,28 +15,24 @@ function WorkSpace() {
     const token = localStorage.getItem("token");
     localStorage.removeItem("workspaceIdBetw2");
     if (token == "" || token == undefined || profile == []) {
-      navigate("/Login");
-    }
-
-    if (localStorage.getItem("username") && localStorage.getItem("u-Id")) {
-      localStorage.removeItem("username");
-      localStorage.removeItem("u-Id");
-    }
-    if (localStorage.getItem("spId") && localStorage.getItem("spName")) {
       localStorage.removeItem("spId");
       localStorage.removeItem("spName");
+      localStorage.removeItem("username");
+      localStorage.removeItem("u-Id");
+      navigate("/Login");
+    }else{
+      getPorfile();
     }
     //Get All Workspace for user and admin
-    getPorfile();
-  }, []);
+  }, [isUserLogount]);
 
   const GoCreateWorkspace = () => {
     navigate("/createworkspace");
   };
 
   const Logout = () => {
-    localStorage.clear();
-    navigate("/Login");
+    setIsUserLogout(true);
+    localStorage.removeItem("token");
   };
 
   return (

@@ -53,4 +53,4 @@ function CreateChannelModal() {
   )
 }
 
-export default CreateChannelModal
+export default React.memo(CreateChannelModal)
