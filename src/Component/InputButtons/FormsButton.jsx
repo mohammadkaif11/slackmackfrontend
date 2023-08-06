@@ -97,6 +97,7 @@ function FormsButton(props) {
         <input
           type="file"
           hidden
+          disabled
           onChange={props.handleFileChange}
           ref={props.inputFileRef}
         />
