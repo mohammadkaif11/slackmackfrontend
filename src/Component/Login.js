@@ -24,17 +24,11 @@ function Login() {
             <h1>Sign in to Slack</h1>
             <p>We suggest using the email address you use at work. </p>
             <div>
-                <button className="googlebutton" onClick={Login}>Sigin With Google</button>
+                <button className="googlebutton" onClick={Login}>Singin With Google</button>
             </div>
             <div>
-                <button className="applebutton" onClick={Login}>Sigin With Apple</button>
+                <button className="googlebutton" onClick={Login}>Singup With Google</button>
             </div>
-            <h3>Or</h3>
-            <input type="email" name="email" id="email" />
-            <div>
-                <button className="singupbutton" onClick={Login}>Continue</button>
-            </div>
-            <p style={{"fontSize": "20px","color": "#4285f4"}}>Already Account?</p>
         </div>
     </div> 
     </div>
