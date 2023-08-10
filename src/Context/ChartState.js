@@ -21,7 +21,7 @@ const ChartState=(props)=>{
         }
       }
         axios
-        .post("http://localhost:5000/workspace/addgroup", payLoad,config)
+        .post("https://slackmackbackend.onrender.com/workspace/addgroup", payLoad,config)
         .then((res) => {
           alert(res.data.Message);
         })
@@ -39,7 +39,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .get(`http://localhost:5000/workspace/getuser/${workspaceId}`,config)
+        .get(`https://slackmackbackend.onrender.com/getuser/${workspaceId}`,config)
         .then((res) => {
          setCurrentUser(res.data.user)
          setAdmin(res.data.admin)
@@ -60,7 +60,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .get(`http://localhost:5000/workspace/chats/${workspaceId}`,config)
+        .get(`https://slackmackbackend.onrender.com/chats/${workspaceId}`,config)
         .then((res) => {
           SetChats(res.data.chat);
         })
@@ -78,7 +78,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .get(`http://localhost:5000/workspace/getWorkspacedetails/${workspaceurl}`,config)
+        .get(`https://slackmackbackend.onrender.com/workspace/getWorkspacedetails/${workspaceurl}`,config)
         .then((res) => {
           setWorkSpaceId(res.data.Workspace._id);
           setWorkSpaceName(res.data.Workspace.WorkspaceName);
@@ -104,7 +104,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .post(`http://localhost:5000/workspace/userchats/${workspaceId}`,payLoad,config)
+        .post(`https://slackmackbackend.onrender.com/workspace/userchats/${workspaceId}`,payLoad,config)
         .then((res) => {
           SetChats(res.data.chat);
         })
@@ -123,7 +123,7 @@ const ChartState=(props)=>{
         }
       }
       axios
-        .get(`http://localhost:5000/workspace/deleteuser/${id}`,config)
+        .get(`https://slackmackbackend.onrender.com/workspace/deleteuser/${id}`,config)
         .then((res) => {
            alert(res.data.Message)
         })
@@ -141,7 +141,7 @@ const ChartState=(props)=>{
         }
       }
         axios
-        .post("http://localhost:5000/workspace/createchannel", payLoad,config)
+        .post("https://slackmackbackend.onrender.com/workspace/createchannel", payLoad,config)
         .then((res) => {
           alert(res.data.Message);
         })
@@ -162,7 +162,7 @@ const ChartState=(props)=>{
         }
       }
         axios
-        .post("http://localhost:5000/workspace/getchannels", payLoad,config)
+        .post("https://slackmackbackend.onrender.com/workspace/getchannels", payLoad,config)
         .then((res) => {
           SetChannels(res.data.Channels);
         })
@@ -180,7 +180,7 @@ const ChartState=(props)=>{
       }
     }
       axios
-      .post("http://localhost:5000/workspace/addchannel", payLoad,config)
+      .post("https://slackmackbackend.onrender.com/workspace/addchannel", payLoad,config)
       .then((res) => {
         alert(res.data.Message);
       })
@@ -198,7 +198,7 @@ const ChartState=(props)=>{
       }
     }
     axios
-      .get(`http://localhost:5000/workspace/getChannels/${workspaceurl}`,config)
+      .get(`https://slackmackbackend.onrender.com/getChannels/${workspaceurl}`,config)
       .then((res) => {
         SetChannels(res.data.Channel);
       })

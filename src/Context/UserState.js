@@ -39,7 +39,7 @@ const UserState = (props) => {
           if(res){
             const Postdata = { profile: JSON.stringify(res.data) };
             axios
-              .post("http://localhost:5000/users/login", Postdata)
+              .post("https://slackmackbackend.onrender.com/users/login", Postdata)
               .then((res) => {
                 setProfile(res.data.profile);
                 if(res.data.token!=""){
@@ -61,7 +61,7 @@ const UserState = (props) => {
       }
     }
     axios
-      .get("http://localhost:5000/users/getprofile",config)
+      .get("https://slackmackbackend.onrender.com/getprofile",config)
       .then((res) => {
         setProfile(res.data.profile[0]);
         setWorkspaces(res.data.workspace);
@@ -80,7 +80,7 @@ const UserState = (props) => {
       }
     }
     axios
-      .post("http://localhost:5000/workspace/create", payLoad,config)
+      .post("https://slackmackbackend.onrender.com/workspace/create", payLoad,config)
       .then((res) => {
         return true
       })
