@@ -36,18 +36,20 @@ const UserState = (props) => {
           }
         )
         .then((res) => {
-          const Postdata = { profile: JSON.stringify(res.data) };
-          axios
-            .post("http://localhost:5000/users/login", Postdata)
-            .then((res) => {
-              setProfile(res.data.profile);
-              if(res.data.token!=""){
-                localStorage.setItem("token", res.data.token);
-                navigate("/workspace");
-              }
-            });
+          if(res){
+            const Postdata = { profile: JSON.stringify(res.data) };
+            axios
+              .post("https://slackmackbackend.onrender.com/users/login", Postdata)
+              .then((res) => {
+                setProfile(res.data.profile);
+                if(res.data.token!=""){
+                  localStorage.setItem("token", res.data.token);
+                  navigate("/workspace");
+                }
+              });
+          }
         })
-        .catch((err) => console.log(err));
+        .catch((err) =>console.log('Error :', err));
     }
   };
 
@@ -59,14 +61,13 @@ const UserState = (props) => {
       }
     }
     axios
-      .get("http://localhost:5000/users/getprofile",config)
+      .get("https://slackmackbackend.onrender.com/getprofile",config)
       .then((res) => {
-        console.log(res.data);
         setProfile(res.data.profile[0]);
         setWorkspaces(res.data.workspace);
         setGroups(res.data.group)
-      }).catch((error)=>{
-        console.log(error);
+      }).catch((err)=>{
+        console.log('Error :', err);
       });
   };
 
@@ -79,12 +80,12 @@ const UserState = (props) => {
       }
     }
     axios
-      .post("http://localhost:5000/workspace/create", payLoad,config)
+      .post("https://slackmackbackend.onrender.com/workspace/create", payLoad,config)
       .then((res) => {
-        console.log(res.data);
+        return true
       })
       .catch((err) => {
-        console.log(err);
+        console.log('Error :', err);
       });
   };
   
