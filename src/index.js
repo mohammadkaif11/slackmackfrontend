@@ -6,8 +6,9 @@ import reportWebVitals from './reportWebVitals';
 import { BrowserRouter } from "react-router-dom";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 const root = ReactDOM.createRoot(document.getElementById('root'));
+//GoogleClientID
 root.render(
-  <GoogleOAuthProvider clientId="1001041294556-4gh0mmubqphu0otihqmjpesjnkgovef8.apps.googleusercontent.com">
+  <GoogleOAuthProvider clientId="39933519149-8pjkjcrdi3rnsb7r16lfil5q08r42rga.apps.googleusercontent.com">
   <React.StrictMode>
     <BrowserRouter>
     <App />
